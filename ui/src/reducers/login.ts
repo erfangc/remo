@@ -1,8 +1,7 @@
 import {Action} from "redux-actions";
 import axios from "axios";
 import {Dispatch} from "redux";
-import {actions as portfoliosActions} from "./portfolio";
-import {history} from "../index";
+import {attemptInitialization} from "./initialization";
 
 export interface LoginState {
   loggedIn: boolean
@@ -29,22 +28,17 @@ export function loginReducer(state: LoginState = initialState, action: Action<vo
 }
 
 export const actions = {
-  login: (username: string, password: string) => (dispatch: Dispatch<Action<any>>) => {
+  login: (username: string, password: string, rememberMe: boolean = false) => (dispatch: Dispatch<Action<any>>) => {
     return axios
-      .post("/login", `username=${username}&password=${password}`)
+      .post("/login", `username=${username}&password=${password}&remember-me=${rememberMe}`)
       .then(
         () => {
           dispatch({type: LOG_IN_SUCCESSFUL});
           /*
            we immediate initialize the App's main state by querying a pre-determined end point
            */
-          // TODO use generators or sagas or something like that to avoid callback hello
-          axios
-            .get('/api/portfolios')
-            .then(({data}) => {
-              dispatch(portfoliosActions.setPortfolios(data));
-              history.push('/');
-            });
+          // TODO use generators or sagas or something like that to avoid callback hell
+          attemptInitialization(dispatch)
         }
       )
       .catch(resp => dispatch({type: LOG_IN_UNSUCCESSFUL}))

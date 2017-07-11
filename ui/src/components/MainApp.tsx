@@ -1,87 +1,111 @@
 import * as React from "react";
-import {actions as portfolioActions, PortfolioState} from "../reducers/portfolio";
+import {portfolioActions} from "../reducers/portfolio";
+import TradeTable from "./main/TradeTable";
 import {connect} from "react-redux";
 import {RootState} from "../reducers/index";
-import {Button, Card, Dropdown, Grid, Icon, Table} from "semantic-ui-react";
+import {Button, Grid, Header} from "semantic-ui-react";
+import TradePlacer from "../components/TradePlacer";
+import {Portfolio, Trade} from "../common/models";
+import {PortfolioDetail} from "./main/PortfolioDetail";
 
 interface StateProps {
-  portfolios: PortfolioState
+  portfolio: Portfolio,
+  trades: Trade[]
+}
+
+interface State {
+  showTradePlacer: boolean
 }
 
 type Actions = typeof portfolioActions;
 
-const currencyIconMap = {
-  'GBP': 'pound',
-  'USD': 'dollar',
-  'JPY': 'yen',
-  'EUR': 'euro'
-};
+class MainApp extends React.Component<StateProps & Actions, State> {
 
-class MainApp extends React.Component<StateProps & Actions, any> {
+  constructor(props: StateProps & Actions) {
+    super(props);
+    this.state = {
+      showTradePlacer: false
+    }
+  }
 
   render(): JSX.Element | any | any {
     const {
-      props: {portfolios: {portfolios, activePortfolio}}
+      props: {trades, portfolio}
     } = this;
-    const portfolioOptions = portfolios.map((p, idx) => ({text: p.portfolioName, value: idx}));
 
-    const portfolio = portfolios[activePortfolio];
-
-    const portfolioDetail: JSX.Element = !portfolio ? null
-      : (<Card>
-          <Card.Content header={portfolio.portfolioName}/>
-          <Card.Content>
-            <Table celled>
-              <Table.Body>
-                {portfolio.cashBalances.map(cb => {
-                  return (
-                    <Table.Row>
-                      <Table.Cell>
-                        {
-                          !currencyIconMap[cb.cashBalanceID.currency]
-                            ? <strong>{cb.cashBalanceID.currency}</strong>
-                            : <Icon name={currencyIconMap[cb.cashBalanceID.currency]}/>
-                        }
-                      </Table.Cell>
-                      <Table.Cell>{Intl.NumberFormat().format(cb.quantity)}</Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table>
-          </Card.Content>
-        </Card>
+    if (!portfolio) {
+      return (
+        <Header as="h1" content="No Portfolio Loaded"/>
       );
+    }
 
     return (
       <Grid container celled>
         <Grid.Row>
-          <Grid.Column width={11}>
-          </Grid.Column>
           <Grid.Column width={3}>
-            <Dropdown text="Choose a Portfolio" options={portfolioOptions}/>
+            {/*<Dropdown text="Choose a Portfolio" options={portfolioOptions}/>*/}
           </Grid.Column>
           <Grid.Column width={2}>
             <Button icon="plus" color="green" content="New"/>
           </Grid.Column>
+          <Grid.Column width={9}>
+          </Grid.Column>
+          <Grid.Column width={2}>
+            <Button content="Logout" color="red"/>
+          </Grid.Column>
         </Grid.Row>
         <Grid.Row>
           <Grid.Column width={5}>
-            {portfolioDetail}
+            <PortfolioDetail portfolio={portfolio}/>
           </Grid.Column>
           <Grid.Column width={11}>
+            {this.renderTradePlacer(portfolio)}
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column width={16}>
+            <TradeTable portfolioID={portfolio.portfolioID} trades={trades}/>
           </Grid.Column>
         </Grid.Row>
       </Grid>
     );
   }
 
+  renderTradePlacer(portfolio: Portfolio) {
+    const {state: {showTradePlacer}} = this;
+    return showTradePlacer ?
+      <TradePlacer
+        portfolioID={portfolio.portfolioID}
+        hide={() => this.setState({showTradePlacer: false})}
+      />
+      :
+      <Button
+        icon="plus"
+        content="Place a Trade"
+        onClick={() => this.setState({showTradePlacer: true})}
+      />;
+  }
+
 }
 
 function mapStateToProps(state: RootState): StateProps {
-  const {portfolios} = state;
+  const {
+    portfolios: {
+      activePortfolio, portfolios
+    },
+    trades: {tradesByPortfolioID}
+  } = state;
+
+  const portfolio = portfolios[activePortfolio];
+  let trades = [];
+  if (portfolio) {
+    const portfolioID = portfolio.portfolioID;
+    trades = tradesByPortfolioID[portfolioID] || [];
+  }
+
   return {
-    portfolios
+    portfolio,
+    trades
   }
 }
 

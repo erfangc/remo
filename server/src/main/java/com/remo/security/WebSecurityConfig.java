@@ -12,7 +12,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 /**
- * {@link WebSecurityConfig}
+ * {@link WebSecurityConfig} configures Spring Security authentication Beans and Http authorization configurations
+ * Here we autowire our custom {@link UserDetailService}
  * Created by erfangchen on 7/5/17.
  */
 @Configuration
@@ -27,7 +28,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(new StandardPasswordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        auth.authenticationProvider(daoAuthenticationProvider);
+        /*
+        it is important to set the default userDetailsService on AuthenticationManagerBuilder
+         */
+        auth.authenticationProvider(daoAuthenticationProvider).userDetailsService(userDetailsService);
     }
 
     @Override
@@ -47,6 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(new SimpleUrlAuthenticationFailureHandler())
+                .and()
+                .rememberMe()
                 .and()
                 .logout();
     }

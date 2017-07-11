@@ -5,25 +5,7 @@
  */
 
 import {Action, createAction} from "redux-actions";
-
-export interface Portfolio {
-  portfolioID: string
-  portfolioName: string
-  username: string
-  currency: string
-  description: string
-  cashBalances: CashBalance[]
-}
-
-export interface CashBalance {
-  cashBalanceID: CashBalanceID
-  quantity: number
-}
-
-export interface CashBalanceID {
-  portfolioID: string
-  currency: string
-}
+import {Portfolio} from "../common/models";
 
 export interface PortfolioState {
   portfolios: Portfolio[]
@@ -54,10 +36,10 @@ interface DeletePortfolioAction extends Action<string> {
   type: DeletePortfolio
 }
 
-export const actions = {
+export const portfolioActions = {
   addNewPortfolio: createAction<Portfolio>(AddNewPortfolio),
   setPortfolios: createAction<Portfolio[]>(SetPortfolios),
-  updateNewPortfolio: createAction<Portfolio>(UpdatePortfolio),
+  updatePortfolio: createAction<Portfolio>(UpdatePortfolio),
   deletePortfolio: createAction<string>(DeletePortfolio)
 };
 
@@ -68,6 +50,12 @@ const initialState: PortfolioState = {
   activePortfolio: null
 };
 
+/**
+ * reducer that handles mutation to the portfolio store
+ * @param state
+ * @param action
+ * @return {any}
+ */
 export function portfolioReducer(state: PortfolioState = initialState, action: PortfolioAction): PortfolioState {
   switch (action.type) {
     case SetPortfolios:
@@ -75,7 +63,15 @@ export function portfolioReducer(state: PortfolioState = initialState, action: P
     case AddNewPortfolio:
       return {...state, portfolios: [...state.portfolios, action.payload]};
     case UpdatePortfolio:
-      return {...state, portfolios: [...state.portfolios, action.payload]};
+      return {
+        ...state, portfolios: state.portfolios.map(p => {
+          if (p.portfolioID === action.payload.portfolioID) {
+            return action.payload;
+          } else {
+            return p;
+          }
+        })
+      };
     case DeletePortfolio:
       return {...state, portfolios: state.portfolios.filter(p => p.portfolioID !== action.payload)};
     default:

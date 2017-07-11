@@ -26,12 +26,6 @@ public class PortfolioController {
         this.portfolioRepository = portfolioRepository;
     }
 
-    @GetMapping("initialize")
-    public ResponseEntity<InitializationResponse> initialze(Principal principal) {
-        List<Portfolio> portfolios = getAll(principal);
-        return ResponseEntity.ok(new InitializationResponse().setPortfolios(portfolios));
-    }
-
     @GetMapping
     public List<Portfolio> getAll(Principal principal) {
         return portfolioRepository.findByUsername(principal.getName());

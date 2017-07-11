@@ -1,3 +1,10 @@
+/*
+this SQL file encapsulates 'transaction' triggered via placing a trade
+the cash balance in the account should decrease while the trade is inserted atomically
+
+the account cannot trade more than it has cash to fund the transaction in
+ */
+
 BEGIN;
 -- update cash balances as trades should impact cash
 UPDATE remo.cash_balances

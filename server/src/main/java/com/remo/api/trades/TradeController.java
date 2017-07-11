@@ -22,7 +22,9 @@ import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.joining;
 
 /**
- * {@link TradeController}
+ * {@link TradeController} controls the retrieval and placing of trades
+ * <p>
+ * trades should not be placed without going through this controller
  * Created by erfangchen on 7/9/17.
  */
 @RestController
@@ -42,6 +44,22 @@ public class TradeController {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * this method deletes existing trade without reverting money impact
+     */
+    @DeleteMapping("{tradeID}")
+    public ResponseEntity<List<Trade>> deleteByTradeID(Principal principal,
+                                                       @PathVariable UUID portfolioID,
+                                                       @PathVariable UUID tradeID) {
+        Portfolio portfolio = portfolioRepository.findOne(portfolioID);
+        if (portfolio.getUsername().equals(principal.getName())) {
+            tradeRepository.delete(tradeID);
+            return ResponseEntity.ok(tradeRepository.findByPortfolioID(portfolioID));
+        } else  {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
+
     @GetMapping
     public ResponseEntity<List<Trade>> getByPortfolioID(Principal principal, @PathVariable UUID portfolioID) {
         Portfolio portfolio = portfolioRepository.findOne(portfolioID);
@@ -53,9 +71,12 @@ public class TradeController {
     }
 
     @PutMapping
-    public ResponseEntity<?> placeTrade(Principal principal,
-                                        @RequestBody Trade trade,
-                                        @PathVariable UUID portfolioID) throws IOException {
+    public ResponseEntity<PlaceTradeResponse> placeTrade(Principal principal,
+                                                         @RequestBody Trade trade,
+                                                         @PathVariable UUID portfolioID) throws IOException {
+        /*
+        first we must ensure the user has permission to place trade on the given portfolio
+         */
         Portfolio portfolio = portfolioRepository.findOne(portfolioID);
         if (portfolio.getUsername().equals(principal.getName())) {
             final UUID tradeID = randomUUID();
@@ -66,29 +87,40 @@ public class TradeController {
             final double netMoney = -1 * trade.getQuantity() * (trade.getPrice() + trade.getAccruedInterest());
             final String currency = trade.getCurrency();
 
+            /*
+            we read the SQL queries that form our transaction
+            as always, transactions must be atomic and isolated
+            we rely on on the underlying databases to rollback failed concurrent transactions + reapply our transactions
+            we use the default isolation level (this could be tunable in the future
+             */
             BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("place-trade-postgre.sql").getInputStream()));
             final String sql = reader.lines().collect(joining("\n"));
 
-            jdbcTemplate
-                    .update(
-                            sql,
-                            netMoney, portfolioID, currency,
-                            portfolioID,
-                            tradeID,
-                            trade.getSecurityID(),
-                            trade.getSecurityIDType(),
-                            trade.getTradeTime(),
-                            trade.getQuantity(),
-                            trade.getPrice(),
-                            trade.getAccruedInterest(),
-                            currency,
-                            trade.getCommission(),
-                            trade.getDescription()
-                    );
-
+            jdbcTemplate.update(
+                    sql,
+                    netMoney, portfolioID, currency,
+                    portfolioID,
+                    tradeID,
+                    trade.getSecurityID(),
+                    trade.getSecurityIDType(),
+                    trade.getTradeTime(),
+                    trade.getQuantity(),
+                    trade.getPrice(),
+                    trade.getAccruedInterest(),
+                    currency,
+                    trade.getCommission(),
+                    trade.getDescription()
+            );
             reader.close();
-
-            return ResponseEntity.ok("trade " + tradeID + " placed");
+            /*
+            we retrieve everything again to make sure the front-end see the updated balance
+             */
+            Portfolio updatedPortfolio = portfolioRepository.findOne(portfolioID);
+            return ResponseEntity.ok(
+                    new PlaceTradeResponse()
+                            .setPlacedTrade(trade)
+                            .setUpdatedPortfolio(updatedPortfolio)
+            );
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }

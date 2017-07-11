@@ -42,7 +42,7 @@ interface SubmitRegistrationAction extends Action<void> {
 type RegistrationActions = UpdateRegistrationAction | SubmitRegistrationAction | ValidationErrorAction
 
 /*
- thunk / actions creator definitions
+ thunk / portfolioActions creator definitions
  */
 export const actions = {
   /**
