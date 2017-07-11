@@ -6,6 +6,7 @@ import {createBrowserHistory} from 'history';
 import {configureStore} from './store';
 import Registration from './components/Registration';
 import Login from './components/Login';
+import MainApp from './components/MainApp';
 
 const store = configureStore();
 export const history = createBrowserHistory();
@@ -15,7 +16,8 @@ ReactDOM.render(
     <Router history={history}>
       <Switch>
         <Route path="/register" component={Registration}/>
-        <Route path="/logmein" component={Login} />
+        <Route path="/logmein" component={Login}/>
+        <Route path="/" exact component={MainApp}/>
       </Switch>
     </Router>
   </Provider>,

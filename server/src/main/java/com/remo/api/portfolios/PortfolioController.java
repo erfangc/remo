@@ -26,6 +26,12 @@ public class PortfolioController {
         this.portfolioRepository = portfolioRepository;
     }
 
+    @GetMapping("initialize")
+    public ResponseEntity<InitializationResponse> initialze(Principal principal) {
+        List<Portfolio> portfolios = getAll(principal);
+        return ResponseEntity.ok(new InitializationResponse().setPortfolios(portfolios));
+    }
+
     @GetMapping
     public List<Portfolio> getAll(Principal principal) {
         return portfolioRepository.findByUsername(principal.getName());
@@ -52,10 +58,8 @@ public class PortfolioController {
     }
 
     @PostMapping
-    @RequestMapping("{portfolioID}")
     public ResponseEntity<?> update(Principal principal,
-                                    @RequestBody Portfolio portfolio,
-                                    @PathVariable UUID portfolioID) {
+                                    @RequestBody Portfolio portfolio) {
         Portfolio found = portfolioRepository.findOne(portfolio.getPortfolioID());
         final String username = principal.getName();
         if (found.getUsername().equals(username)) {

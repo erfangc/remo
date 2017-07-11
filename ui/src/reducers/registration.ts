@@ -19,7 +19,7 @@ export interface RegistrationState {
 }
 
 /*
- actions declaration
+ Actions declaration
  */
 type UPDATE_REGISTRATION_ACTION = 'UPDATE_REGISTRATION_ACTION';
 const UPDATE_REGISTRATION_ACTION: UPDATE_REGISTRATION_ACTION = 'UPDATE_REGISTRATION_ACTION';
@@ -42,7 +42,7 @@ interface SubmitRegistrationAction extends Action<void> {
 type RegistrationActions = UpdateRegistrationAction | SubmitRegistrationAction | ValidationErrorAction
 
 /*
- thunk / action creator definitions
+ thunk / actions creator definitions
  */
 export const actions = {
   /**
@@ -72,7 +72,7 @@ export const actions = {
           loginActions
             .login(username, password)(dispatch)
             .then(() => {
-              setTimeout(() => history.push('/logmein'), 1000);
+              setTimeout(() => history.push('/'), 1000);
             });
         },
         ({response: {data, status}}) => {
