@@ -53,7 +53,7 @@ class Login extends React.Component<LoginState & typeof actions, State> {
         <Checkbox
           label='Remember Me'
           checked={rememberMe}
-          onChange={(e, data) => this.setState({rememberMe: data.checked})}
+          onChange={(_, data) => this.setState({rememberMe: data.checked})}
         />
         <br/><br/>
         <Button

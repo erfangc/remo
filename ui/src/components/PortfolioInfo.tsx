@@ -1,6 +1,6 @@
 import {Button, Card, Table} from "semantic-ui-react";
 import * as React from "react";
-import PortfolioSelector from './PortfolioSelector';
+import PortfolioSelector from "./PortfolioSelector";
 import {Portfolio} from "../common/models";
 import {portfolioActions} from "../reducers/portfolio";
 import {connect} from "react-redux";
@@ -23,7 +23,7 @@ interface State {
 /**
  * renders a raised card representing a portfolio object's metadata and gives the ability to end those metadata
  */
-class PortfolioDetail extends React.Component<OwnProps & Actions, State> {
+class PortfolioInfo extends React.Component<OwnProps & Actions, State> {
 
   constructor(props: OwnProps & Actions, context: any) {
     super(props, context);
@@ -42,19 +42,38 @@ class PortfolioDetail extends React.Component<OwnProps & Actions, State> {
   }
 
   renderToolbar() {
-    const {state: {subComponentToRender}} = this;
+    const {
+      state: {subComponentToRender},
+      props: {deletePortfolio, portfolio: {portfolioID}}
+    } = this;
     if (subComponentToRender === SubComponentToRender.PortfolioSummary) {
       return [
-        <Button key="edit" secondary content="Edit" icon="edit"/>,
-        <Button key='new' color="green"
-                content="New Portfolio"
+        <Button key='new'
+                color="green"
+                content="New"
                 icon="plus"
+                size="tiny"
                 onClick={() => this.setState({subComponentToRender: SubComponentToRender.PortfolioCreator})}
+        />,
+        <Button key="edit"
+                primary
+                content="Edit"
+                icon="edit"
+                size="tiny"
+        />,
+        <Button key="delete"
+                color="red"
+                content="Delete"
+                size="tiny"
+                icon="trash"
+                onClick={() => deletePortfolio(portfolioID)}
         />
       ];
     } else {
       return (
         <Button color="red"
+                icon="close"
+                size="tiny"
                 content="Cancel"
                 onClick={() => this.setState({subComponentToRender: SubComponentToRender.PortfolioSummary})}
         />
@@ -66,9 +85,7 @@ class PortfolioDetail extends React.Component<OwnProps & Actions, State> {
     return (
       <Card raised>
         <Card.Content>
-          <Card.Header>
-            <PortfolioSelector />
-          </Card.Header>
+          <PortfolioSelector />
         </Card.Content>
         <Card.Content>
           {this.renderToolbar()}
@@ -82,7 +99,11 @@ class PortfolioDetail extends React.Component<OwnProps & Actions, State> {
 
 }
 
-
+/**
+ * stateless component that renders a small table to show portfolio detail attributes
+ * @param cashBalances
+ * @param currency
+ */
 const PortfolioSummary = ({portfolio: {cashBalances, currency}}) => {
   return (
     <Table celled>
@@ -108,4 +129,4 @@ const PortfolioSummary = ({portfolio: {cashBalances, currency}}) => {
   );
 };
 
-export default connect<any, Actions, OwnProps>(null, portfolioActions)(PortfolioDetail);
+export default connect<any, Actions, OwnProps>(null, portfolioActions)(PortfolioInfo);

@@ -7,6 +7,8 @@ import axios from "axios";
 import {Action, createAction} from "redux-actions";
 import {Portfolio} from "../common/models";
 import {Dispatch} from "redux";
+import {RootState} from "./index";
+import {tradeActions} from "./trade";
 
 export interface PortfolioState {
   portfolios: Portfolio[]
@@ -46,7 +48,6 @@ interface SelectPortfolioAction extends Action<number> {
 const actions = {
   setPortfolios: createAction<Portfolio[]>(SetPortfolios),
   updatePortfolio: createAction<Portfolio>(UpdatePortfolio),
-  selectPortfolio: createAction<number>(SelectPortfolio)
 };
 
 export const portfolioActions = {
@@ -57,10 +58,29 @@ export const portfolioActions = {
    */
   createNewPortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
     axios.put(`api/portfolios`, portfolio).then(resp => dispatch({type: AddNewPortfolio, payload: resp.data}))
+  },
+  deletePortfolio: (portfolioID: string) => (dispatch: Dispatch<any>) => {
+    axios.delete(`api/portfolios/${portfolioID}`)
+      .then(resp => dispatch({type: DeletePortfolio, payload: portfolioID}));
+  },
+  selectPortfolio: (idx: number) => (dispatch: Dispatch<any>, getState: () => RootState) => {
+    const {portfolios: {portfolios}} = getState();
+    const portfolioID = portfolios[idx].portfolioID;
+    axios
+      .get(`api/trades/${portfolioID}`)
+      .then(resp => {
+        dispatch(tradeActions.setTrades({portfolioID, trades: resp.data}));
+        dispatch({type: SelectPortfolio, payload: idx});
+      });
   }
 };
 
-type PortfolioAction = AddNewPortfolioAction | UpdatePortfolioAction | DeletePortfolioAction | SetPortfoliosAction | SelectPortfolioAction;
+type PortfolioAction =
+  AddNewPortfolioAction
+  | UpdatePortfolioAction
+  | DeletePortfolioAction
+  | SetPortfoliosAction
+  | SelectPortfolioAction;
 
 const initialState: PortfolioState = {
   portfolios: [],
@@ -80,7 +100,7 @@ export function portfolioReducer(state: PortfolioState = initialState, action: P
       return {...state, portfolios: action.payload, activePortfolio: 0};
     case AddNewPortfolio:
       /*
-      make the new portfolio the active one
+       make the new portfolio the active one
        */
       return {...state, portfolios: [...state.portfolios, action.payload], activePortfolio: state.portfolios.length};
     case UpdatePortfolio:
@@ -94,7 +114,7 @@ export function portfolioReducer(state: PortfolioState = initialState, action: P
         })
       };
     case DeletePortfolio:
-      return {...state, portfolios: state.portfolios.filter(p => p.portfolioID !== action.payload)};
+      return {...state, activePortfolio: 0, portfolios: state.portfolios.filter(p => p.portfolioID !== action.payload)};
     default:
       return state;
   }
