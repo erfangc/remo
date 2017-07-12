@@ -1,89 +1,53 @@
 import * as React from "react";
 import {portfolioActions} from "../reducers/portfolio";
-import TradeTable from "./main/TradeTable";
+import TradeTable from "./TradeTable";
 import {connect} from "react-redux";
 import {RootState} from "../reducers/index";
-import {Button, Grid, Header} from "semantic-ui-react";
-import TradePlacer from "../components/TradePlacer";
-import {Portfolio, Trade} from "../common/models";
-import {PortfolioDetail} from "./main/PortfolioDetail";
+import {Grid} from "semantic-ui-react";
+import {Portfolio} from "../common/models";
+import PortfolioDetail from "./PortfolioDetail";
+import PortfolioCreator from './PortfolioCreator';
+import {Container, Header} from 'semantic-ui-react';
 
 interface StateProps {
-  portfolio: Portfolio,
-  trades: Trade[]
-}
-
-interface State {
-  showTradePlacer: boolean
+  portfolio: Portfolio
 }
 
 type Actions = typeof portfolioActions;
 
-class MainApp extends React.Component<StateProps & Actions, State> {
-
-  constructor(props: StateProps & Actions) {
-    super(props);
-    this.state = {
-      showTradePlacer: false
-    }
-  }
+class MainApp extends React.Component<StateProps & Actions, any> {
 
   render(): JSX.Element | any | any {
     const {
-      props: {trades, portfolio}
+      props: { portfolio}
     } = this;
 
     if (!portfolio) {
       return (
-        <Header as="h1" content="No Portfolio Loaded"/>
-      );
+        <Container>
+          <Header as="h2" content="Create a New Portfolio to Trade With"/>
+          <PortfolioCreator />
+        </Container>
+      )
     }
 
     return (
       <Grid container celled>
         <Grid.Row>
-          <Grid.Column width={3}>
-            {/*<Dropdown text="Choose a Portfolio" options={portfolioOptions}/>*/}
-          </Grid.Column>
-          <Grid.Column width={2}>
-            <Button icon="plus" color="green" content="New"/>
-          </Grid.Column>
-          <Grid.Column width={9}>
-          </Grid.Column>
-          <Grid.Column width={2}>
-            <Button content="Logout" color="red"/>
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column width={5}>
+          <Grid.Column width={6}>
             <PortfolioDetail portfolio={portfolio}/>
           </Grid.Column>
-          <Grid.Column width={11}>
-            {this.renderTradePlacer(portfolio)}
+          <Grid.Column width={10}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
           <Grid.Column width={16}>
-            <TradeTable portfolioID={portfolio.portfolioID} trades={trades}/>
+            <TradeTable />
           </Grid.Column>
         </Grid.Row>
       </Grid>
     );
-  }
-
-  renderTradePlacer(portfolio: Portfolio) {
-    const {state: {showTradePlacer}} = this;
-    return showTradePlacer ?
-      <TradePlacer
-        portfolioID={portfolio.portfolioID}
-        hide={() => this.setState({showTradePlacer: false})}
-      />
-      :
-      <Button
-        icon="plus"
-        content="Place a Trade"
-        onClick={() => this.setState({showTradePlacer: true})}
-      />;
   }
 
 }
@@ -97,15 +61,9 @@ function mapStateToProps(state: RootState): StateProps {
   } = state;
 
   const portfolio = portfolios[activePortfolio];
-  let trades = [];
-  if (portfolio) {
-    const portfolioID = portfolio.portfolioID;
-    trades = tradesByPortfolioID[portfolioID] || [];
-  }
 
   return {
     portfolio,
-    trades
   }
 }
 

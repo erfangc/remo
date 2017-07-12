@@ -3,11 +3,11 @@ import {Action, createAction} from "redux-actions";
 import {Dispatch} from "redux";
 import axios from "axios";
 import {portfolioActions} from "./portfolio";
+
 /**
  * this is the store and reducer for all tradesByPortfolioID retrieved from the server
  * tradesByPortfolioID are stored by their corresponding portfolioID
  */
-
 export interface TradesState {
   tradesByPortfolioID: { [key: string]: Trade[] }
 }
@@ -72,12 +72,11 @@ export const tradeActions = {
  * @param action
  */
 export function tradesReducer(state: TradesState = initialState, action: TradeAction): TradesState {
-  switch (action.type) {
-    case SetTrades || PlacedTrade:
-      const tradesByPortfolioID = tradesByPortfolioIDReducer(state.tradesByPortfolioID, action);
-      return {...state, tradesByPortfolioID};
-    default:
-      return state;
+  if (action.type === PlacedTrade || action.type === SetTrades) {
+    const tradesByPortfolioID = tradesByPortfolioIDReducer(state.tradesByPortfolioID, action);
+    return {...state, tradesByPortfolioID};
+  } else {
+    return state;
   }
 }
 
@@ -85,15 +84,14 @@ export function tradesReducer(state: TradesState = initialState, action: TradeAc
  * the reducer that handles the sub-tree that deals with trades indexed on portfolioID
  * @param state
  * @param action
- * @return {any}
  */
 function tradesByPortfolioIDReducer(state: { [key: string]: Trade[] }, action: TradeAction): { [key: string]: Trade[] } {
   switch (action.type) {
     case SetTrades:
       return {...state, [action.payload.portfolioID]: action.payload.trades};
     case PlacedTrade:
-      const trades = state[action.payload.portfolioID];
-      return {...state, [action.payload.portfolioID]: [...trades, action.payload.trade]};
+      const existingTrades = state[action.payload.portfolioID];
+      return {...state, [action.payload.portfolioID]: [...existingTrades, action.payload.trade]};
     default:
       return state;
   }

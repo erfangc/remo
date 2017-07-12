@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,23 +61,31 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("Querying user detail for {}", username);
-        ImmutableUser user = jdbcTemplate
-                .queryForObject(
-                        "SELECT * FROM remo.users WHERE username = ?",
-                        new Object[]{username},
-                        (rs, rowNum) -> ImmutableUser
-                                .builder()
-                                .username(rs.getString("username"))
-                                .password(rs.getString("password"))
-                                .email(rs.getString("email"))
-                                .occupation(rs.getString("occupation"))
-                                .isEnabled(rs.getBoolean("enabled"))
-                                .isAccountNonLocked(true)
-                                .isCredentialsNonExpired(true)
-                                .isAccountNonExpired(true)
-                                .authorities(Collections.emptySet())
-                                .build()
-                );
+        ImmutableUser user;
+        try {
+            user = jdbcTemplate
+                    .queryForObject(
+                            "SELECT * FROM remo.users WHERE username = ?",
+                            new Object[]{username},
+                            (rs, rowNum) -> ImmutableUser
+                                    .builder()
+                                    .username(rs.getString("username"))
+                                    .password(rs.getString("password"))
+                                    .email(rs.getString("email"))
+                                    .occupation(rs.getString("occupation"))
+                                    .isEnabled(rs.getBoolean("enabled"))
+                                    .isAccountNonLocked(true)
+                                    .isCredentialsNonExpired(true)
+                                    .isAccountNonExpired(true)
+                                    .authorities(Collections.emptySet())
+                                    .build()
+                    );
+        } catch (EmptyResultDataAccessException exception) {
+            logger.error(exception.getMessage());
+            String message = "Cannot find user info for " + username;
+            logger.error(message);
+            throw new UsernameNotFoundException(message);
+        }
         List<Map<String, Object>> authorities = jdbcTemplate.queryForList(
                 "SELECT * FROM remo.authorities WHERE username = ?",
                 new Object[]{username}

@@ -9,7 +9,7 @@ import java.util.List;
 public class InitializationResponse {
 
     private List<Portfolio> portfolios = Collections.emptyList();
-    private int activePortfolio = 0;
+    private Integer activePortfolio = null;
     private List<Trade> trades = Collections.emptyList();
 
     public List<Portfolio> getPortfolios() {
@@ -30,11 +30,11 @@ public class InitializationResponse {
         return this;
     }
 
-    public int getActivePortfolio() {
+    public Integer getActivePortfolio() {
         return activePortfolio;
     }
 
-    public InitializationResponse setActivePortfolio(int activePortfolio) {
+    public InitializationResponse setActivePortfolio(Integer activePortfolio) {
         this.activePortfolio = activePortfolio;
         return this;
     }

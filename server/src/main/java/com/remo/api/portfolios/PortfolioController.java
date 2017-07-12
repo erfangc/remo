@@ -32,7 +32,7 @@ public class PortfolioController {
     }
 
     @PutMapping
-    public ResponseEntity<?> put(Principal principal,
+    public ResponseEntity<Portfolio> put(Principal principal,
                                  @RequestBody Portfolio portfolio) {
         /*
         IMPORTANT - we override the username via principal to ensure we are saving the portfolio
@@ -47,8 +47,8 @@ public class PortfolioController {
                         .getCashBalanceID()
                         .setPortfolioID(portfolio.getPortfolioID())
                 );
-        portfolioRepository.save(portfolio);
-        return ResponseEntity.ok("created");
+        Portfolio newPortfolio = portfolioRepository.save(portfolio);
+        return ResponseEntity.ok(newPortfolio);
     }
 
     @PostMapping

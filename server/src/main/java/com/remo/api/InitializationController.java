@@ -49,7 +49,12 @@ public class InitializationController {
             UUID portfolioID = portfolios.get(0).getPortfolioID();
             ResponseEntity<List<Trade>> trades = tradeController.getByPortfolioID(principal, portfolioID);
             if (trades.getStatusCode().equals(HttpStatus.OK)) {
-                resp = ResponseEntity.ok(new InitializationResponse().setTrades(trades.getBody()).setPortfolios(portfolios));
+                resp = ResponseEntity.ok(
+                        new InitializationResponse()
+                                .setTrades(trades.getBody())
+                                .setPortfolios(portfolios)
+                                .setActivePortfolio(0)
+                );
             } else {
                 resp = new ResponseEntity<>(trades.getStatusCode());
             }

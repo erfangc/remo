@@ -44,21 +44,20 @@ class TradePlacer extends React.Component<Actions & OwnProps, State> {
 
   render(): JSX.Element | any | any {
     const {
-      state: {securityID, securityIDType, currency, description, quantity, accruedInterest, commission, tradeTime, price},
-      props: {portfolioID, placeTrade, hide}
+      props: {hide}
     } = this;
     return (
       <Form>
 
         <Form.Group widths="equal">
-          <Form.Field>
+          <Form.Field required>
             <label>Security ID</label>
             <input
               type='text'
               onChange={ ({target: {value}}) => this.setState({securityID: value})}
             />
           </Form.Field>
-          <Form.Field>
+          <Form.Field required>
             <label>Security ID Type</label>
             <Dropdown
               placeholder='Choose an type of ID'
@@ -67,7 +66,7 @@ class TradePlacer extends React.Component<Actions & OwnProps, State> {
               onChange={(_, {value}) => this.setState({securityIDType: value.toString()})}
             />
           </Form.Field>
-          <Form.Field>
+          <Form.Field required>
             <label>Currency</label>
             <Dropdown
               selection
@@ -78,17 +77,18 @@ class TradePlacer extends React.Component<Actions & OwnProps, State> {
         </Form.Group>
 
         <Form.Group widths="equal">
-          <Form.Field>
+          <Form.Field required>
             <label>Price</label>
             <input type="number" onChange={({target: {value}}) => this.setState({price: parseFloat(value)})}/>
           </Form.Field>
-          <Form.Field>
+          <Form.Field required>
             <label>Quantity</label>
             <input type="number" onChange={({target: {value}}) => this.setState({quantity: parseFloat(value)})}/>
           </Form.Field>
           <Form.Field>
             <label>Commission</label>
-            <input type="number" onChange={({target: {value}}) => this.setState({commission: parseFloat(value)})}/>
+            <input type="number" defaultValue={'0'}
+                   onChange={({target: {value}}) => this.setState({commission: parseFloat(value)})}/>
           </Form.Field>
         </Form.Group>
 
@@ -99,26 +99,35 @@ class TradePlacer extends React.Component<Actions & OwnProps, State> {
 
         <Button primary
                 content='Place Trade'
-                onClick={() => placeTrade(
-                  portfolioID,
-                  {
-                    portfolioID,
-                    tradeID: null,
-                    securityID,
-                    securityIDType,
-                    price,
-                    tradeTime,
-                    commission,
-                    accruedInterest,
-                    quantity,
-                    description,
-                    currency
-                  }
-                )}
+                onClick={() => this.placeTrade()}
         />
         <Button color='red' content='Cancel' onClick={() => hide()}/>
       </Form>
     );
+  }
+
+  placeTrade() {
+    const {
+      state: {securityID, securityIDType, currency, description, quantity, accruedInterest, commission, tradeTime, price},
+      props: {portfolioID, placeTrade, hide}
+    } = this;
+    placeTrade(
+      portfolioID,
+      {
+        portfolioID,
+        tradeID: null,
+        securityID,
+        securityIDType,
+        price,
+        tradeTime,
+        commission,
+        accruedInterest,
+        quantity,
+        description,
+        currency
+      }
+    );
+    hide();
   }
 }
 

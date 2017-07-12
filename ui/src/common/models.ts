@@ -30,9 +30,3 @@ export interface CashBalanceID {
   portfolioID: string
   currency: string
 }
-
-export interface InitializationResponse {
-  portfolios: Portfolio[]
-  activePortfolio: number
-  trades: Trade[]
-}

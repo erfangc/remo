@@ -52,3 +52,27 @@ provisioned and deployed at any organizing requiring such capabilities
 ## Live Administrator Dashboard Reporting
  - God-view into all user accounts for site administrators
  - Dashboard capabilities
+
+# Development
+This is a hobbist project used to demonstrate the capabilities of various technologies and techniques
+for building a modern distributed business system. I plan to build the system in phases
+
+## Phase 1 - Transaction Platform Development
+   This phase will conclude the build out of the core transaction logic. Including the following domain models
+   - User Account / Authentication + Signup
+   - Portfolio Entities
+   - Trade / Position Entities
+   This phase will not include security data
+
+## Phase 2 - Security Repository
+   this phase will conclude the build out the Stock and potentially Exchange Traded product repository and the corresponding ingestion process
+   and data stores
+  - Source US or Global equity indicative + financial statements
+  - Equity price time-series (maybe via live API calls instead of stored)
+  - Create ElasticSearch service
+
+## Phase 4 - Security Analytics Microservice
+
+## Phase 5 - Portfolio Valuation and Analysis
+
+## Phase 6 - Real-Time 'Godview' Dashboard

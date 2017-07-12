@@ -3,9 +3,10 @@
  *
  * Created by erfangchen on 7/10/17.
  */
-
+import axios from "axios";
 import {Action, createAction} from "redux-actions";
 import {Portfolio} from "../common/models";
+import {Dispatch} from "redux";
 
 export interface PortfolioState {
   portfolios: Portfolio[]
@@ -36,14 +37,30 @@ interface DeletePortfolioAction extends Action<string> {
   type: DeletePortfolio
 }
 
-export const portfolioActions = {
-  addNewPortfolio: createAction<Portfolio>(AddNewPortfolio),
+type SelectPortfolio = 'SelectPortfolio';
+const SelectPortfolio: SelectPortfolio = 'SelectPortfolio';
+interface SelectPortfolioAction extends Action<number> {
+  type: SelectPortfolio
+}
+
+const actions = {
   setPortfolios: createAction<Portfolio[]>(SetPortfolios),
   updatePortfolio: createAction<Portfolio>(UpdatePortfolio),
-  deletePortfolio: createAction<string>(DeletePortfolio)
+  selectPortfolio: createAction<number>(SelectPortfolio)
 };
 
-type PortfolioAction = AddNewPortfolioAction | UpdatePortfolioAction | DeletePortfolioAction | SetPortfoliosAction;
+export const portfolioActions = {
+  ...actions,
+  /**
+   * creates a new portfolio
+   * @param portfolio
+   */
+  createNewPortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
+    axios.put(`api/portfolios`, portfolio).then(resp => dispatch({type: AddNewPortfolio, payload: resp.data}))
+  }
+};
+
+type PortfolioAction = AddNewPortfolioAction | UpdatePortfolioAction | DeletePortfolioAction | SetPortfoliosAction | SelectPortfolioAction;
 
 const initialState: PortfolioState = {
   portfolios: [],
@@ -54,14 +71,18 @@ const initialState: PortfolioState = {
  * reducer that handles mutation to the portfolio store
  * @param state
  * @param action
- * @return {any}
  */
 export function portfolioReducer(state: PortfolioState = initialState, action: PortfolioAction): PortfolioState {
   switch (action.type) {
+    case SelectPortfolio:
+      return {...state, activePortfolio: action.payload};
     case SetPortfolios:
       return {...state, portfolios: action.payload, activePortfolio: 0};
     case AddNewPortfolio:
-      return {...state, portfolios: [...state.portfolios, action.payload]};
+      /*
+      make the new portfolio the active one
+       */
+      return {...state, portfolios: [...state.portfolios, action.payload], activePortfolio: state.portfolios.length};
     case UpdatePortfolio:
       return {
         ...state, portfolios: state.portfolios.map(p => {
