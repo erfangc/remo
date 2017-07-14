@@ -7,8 +7,9 @@ import axios from "axios";
 import {Action, createAction} from "redux-actions";
 import {Portfolio} from "../common/models";
 import {Dispatch} from "redux";
-import {RootState} from "./index";
-import {tradeActions} from "./trade";
+import {RootState} from "../reducers/index";
+import {tradeActions} from "../trades/trade";
+import {history} from "../index";
 
 export interface PortfolioState {
   portfolios: Portfolio[]
@@ -46,28 +47,45 @@ interface SelectPortfolioAction extends Action<number> {
 }
 
 const actions = {
-  setPortfolios: createAction<Portfolio[]>(SetPortfolios),
-  updatePortfolio: createAction<Portfolio>(UpdatePortfolio),
+  setPortfolios: createAction<Portfolio[]>(SetPortfolios)
 };
 
 export const portfolioActions = {
   ...actions,
+  updatePortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
+    axios
+      .post(`/api/portfolios`, portfolio)
+      .then(resp => {
+        dispatch({type: UpdatePortfolio, payload: resp.data});
+        history.goBack();
+      });
+  },
   /**
    * creates a new portfolio
-   * @param portfolio
    */
   createNewPortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
-    axios.put(`api/portfolios`, portfolio).then(resp => dispatch({type: AddNewPortfolio, payload: resp.data}))
+    axios
+      .put(`/api/portfolios`, portfolio)
+      .then(resp => {
+        dispatch({type: AddNewPortfolio, payload: resp.data});
+        history.goBack();
+      })
   },
-  deletePortfolio: (portfolioID: string) => (dispatch: Dispatch<any>) => {
-    axios.delete(`api/portfolios/${portfolioID}`)
-      .then(resp => dispatch({type: DeletePortfolio, payload: portfolioID}));
+  deletePortfolio: (portfolioID: string) => (dispatch: Dispatch<any>, getState: () => RootState) => {
+    axios.delete(`/api/portfolios/${portfolioID}`)
+      .then(() => {
+        dispatch({type: DeletePortfolio, payload: portfolioID});
+        const state = getState();
+        if (state.portfolios.portfolios.length === 0) {
+          history.push('/portfolios/create')
+        }
+      });
   },
   selectPortfolio: (idx: number) => (dispatch: Dispatch<any>, getState: () => RootState) => {
     const {portfolios: {portfolios}} = getState();
     const portfolioID = portfolios[idx].portfolioID;
     axios
-      .get(`api/trades/${portfolioID}`)
+      .get(`/api/trades/${portfolioID}`)
       .then(resp => {
         dispatch(tradeActions.setTrades({portfolioID, trades: resp.data}));
         dispatch({type: SelectPortfolio, payload: idx});
@@ -102,7 +120,11 @@ export function portfolioReducer(state: PortfolioState = initialState, action: P
       /*
        make the new portfolio the active one
        */
-      return {...state, portfolios: [...state.portfolios, action.payload], activePortfolio: state.portfolios.length};
+      return {
+        ...state,
+        portfolios: [...state.portfolios, action.payload],
+        activePortfolio: state.portfolios.length
+      };
     case UpdatePortfolio:
       return {
         ...state, portfolios: state.portfolios.map(p => {
@@ -114,7 +136,11 @@ export function portfolioReducer(state: PortfolioState = initialState, action: P
         })
       };
     case DeletePortfolio:
-      return {...state, activePortfolio: 0, portfolios: state.portfolios.filter(p => p.portfolioID !== action.payload)};
+      return {
+        ...state,
+        activePortfolio: 0,
+        portfolios: state.portfolios.filter(p => p.portfolioID !== action.payload)
+      };
     default:
       return state;
   }

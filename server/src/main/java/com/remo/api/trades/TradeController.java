@@ -7,17 +7,19 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Principal;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static java.util.UUID.randomUUID;
@@ -35,15 +37,19 @@ public class TradeController {
 
     private TradeRepository tradeRepository;
     private PortfolioRepository portfolioRepository;
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate jdbcTemplate;
+    private String placeTradeSQL;
 
     @Autowired
     public TradeController(TradeRepository tradeRepository,
                            PortfolioRepository portfolioRepository,
-                           JdbcTemplate jdbcTemplate) {
+                           NamedParameterJdbcTemplate namedParameterJdbcTemplate) throws IOException {
         this.tradeRepository = tradeRepository;
         this.portfolioRepository = portfolioRepository;
-        this.jdbcTemplate = jdbcTemplate;
+        this.jdbcTemplate = namedParameterJdbcTemplate;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("place-trade-postgre.sql").getInputStream()));
+        this.placeTradeSQL = reader.lines().collect(joining("\n"));
+        reader.close();
     }
 
     /**
@@ -87,15 +93,21 @@ public class TradeController {
         }
     }
 
-    private ResponseEntity<PlaceTradeResponse> attemptToPlaceTrade(Trade trade, UUID portfolioID) throws IOException {
-       try {
-           final UUID tradeID = randomUUID();
-           trade.setTradeID(tradeID);
-           trade.setTradeTime(Date.from(Instant.now()));
-           trade.setPortfolioID(portfolioID);
+    private ResponseEntity<PlaceTradeResponse> attemptToPlaceTrade(Trade trade, UUID portfolioID) {
+        try {
+            final UUID tradeID = randomUUID();
+            trade.setTradeID(tradeID);
+            trade.setTradeTime(Date.from(Instant.now()));
+            trade.setPortfolioID(portfolioID);
 
-           final double netMoney = -1 * trade.getQuantity() * (trade.getPrice() + trade.getAccruedInterest());
-           final String currency = trade.getCurrency();
+            final double netMoney = -1 * trade.getQuantity() * (trade.getPrice() + trade.getAccruedInterest());
+            final String currency = trade.getCurrency();
+
+            /*
+            only validate if a cash balance exists does not actually check if you have enough
+            that is delegated to a table level constraint
+             */
+            validateCashBalanceExists(portfolioID, currency);
 
             /*
             we read the SQL queries that form our transaction
@@ -103,38 +115,51 @@ public class TradeController {
             we rely on on the underlying databases to rollback failed concurrent transactions + reapply our transactions
             we use the default isolation level (this could be tunable in the future
              */
-           BufferedReader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("place-trade-postgre.sql").getInputStream()));
-           final String sql = reader.lines().collect(joining("\n"));
 
-           jdbcTemplate.update(
-                   sql,
-                   netMoney, portfolioID, currency,
-                   portfolioID,
-                   tradeID,
-                   trade.getSecurityID(),
-                   trade.getSecurityIDType(),
-                   trade.getTradeTime(),
-                   trade.getQuantity(),
-                   trade.getPrice(),
-                   trade.getAccruedInterest(),
-                   currency,
-                   trade.getCommission(),
-                   trade.getDescription()
-           );
-           reader.close();
+            SqlParameterSource paramSource = new MapSqlParameterSource()
+                    .addValue("net_money", netMoney)
+                    .addValue("portfolio_id", portfolioID)
+                    .addValue("currency", currency)
+                    .addValue("trade_id", tradeID)
+                    .addValue("security_id", trade.getSecurityID())
+                    .addValue("security_id_type", trade.getSecurityIDType())
+                    .addValue("trade_time", trade.getTradeTime())
+                    .addValue("quantity", trade.getQuantity())
+                    .addValue("price", trade.getPrice())
+                    .addValue("accrued_interest", trade.getAccruedInterest())
+                    .addValue("commission", trade.getCommission())
+                    .addValue("description", trade.getDescription());
+            jdbcTemplate.update(
+                    placeTradeSQL,
+                    paramSource
+            );
+
             /*
             we retrieve everything again to make sure the front-end see the updated balance
              */
-           Portfolio updatedPortfolio = portfolioRepository.findOne(portfolioID);
-           return ResponseEntity
-                   .ok(new PlaceTradeResponse()
-                           .setPlacedTrade(trade)
-                           .setUpdatedPortfolio(updatedPortfolio)
-                   );
-       } catch (DataAccessException e) {
-           // TODO depending on the SQL exception we may need to return different status codes
-           return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-       }
+            Portfolio updatedPortfolio = portfolioRepository.findOne(portfolioID);
+            return ResponseEntity
+                    .ok(new PlaceTradeResponse()
+                            .setPlacedTrade(trade)
+                            .setUpdatedPortfolio(updatedPortfolio)
+                    );
+        } catch (DataAccessException e) {
+            // TODO depending on the SQL exception we may need to return different status codes
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateCashBalanceExists(UUID portfolioID, String currency) {
+        List<Map<String, Object>> cash = jdbcTemplate
+                .queryForList(
+                        "SELECT 1 FROM remo.cash_balances WHERE portfolio_id = :portfolio_id AND currency = :currency",
+                        new MapSqlParameterSource()
+                                .addValue("portfolio_id", portfolioID)
+                                .addValue("currency", currency)
+                );
+        if (cash.isEmpty()) {
+            throw new IllegalStateException("You don't have any money in " + currency);
+        }
     }
 
 }

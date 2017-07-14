@@ -1,6 +1,6 @@
 import * as React from "react";
-import {portfolioActions} from "../reducers/portfolio";
-import {Dropdown} from "semantic-ui-react";
+import {portfolioActions} from "./portfolio";
+import {Button, Dropdown, Popup, Icon} from "semantic-ui-react";
 import {RootState} from "../reducers/index";
 import {connect} from "react-redux";
 
@@ -20,14 +20,29 @@ class PortfolioSelector extends React.Component<StateProps & Actions, any> {
   render(): JSX.Element | any | any {
     const {props: {options, currentSelection, selectPortfolio}} = this;
     return (
-      <Dropdown
-        selection
-        text={currentSelection.text}
-      >
-        <Dropdown.Menu>
-          {options.map(option => <Dropdown.Item text={option.text} onClick={() => selectPortfolio(option.value)}/>)}
-        </Dropdown.Menu>
-      </Dropdown>
+      <div>
+        <Dropdown
+          selection
+          text={currentSelection.text}
+        >
+          <Dropdown.Menu>
+            {
+              options.map(option => (
+                <Dropdown.Item key={option.text} text={option.text}
+                               onClick={() => selectPortfolio(option.value)}
+                />
+              ))
+            }
+          </Dropdown.Menu>
+        </Dropdown>
+        &nbsp;
+        <Popup
+          trigger={<Button icon="info" size="tiny" basic/>}
+          content='This should contain detailed portfolio information'
+          on='hover'
+        />
+      </div>
+
     );
   }
 

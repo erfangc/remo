@@ -1,12 +1,11 @@
 import * as React from "react";
-import {portfolioActions} from "../reducers/portfolio";
-import TradeTable from "./TradeTable";
+import {portfolioActions} from "../portfolios/portfolio";
+import TradeTable from "../trades/TradeTable";
 import {connect} from "react-redux";
 import {RootState} from "../reducers/index";
-import {Button, Container, Grid, Header} from "semantic-ui-react";
+import {Button, Grid} from "semantic-ui-react";
 import {Portfolio} from "../common/models";
-import PortfolioInfo from "./PortfolioInfo";
-import PortfolioCreator from "./PortfolioCreator";
+import PortfolioInfo from "../portfolios/PortfolioInfo";
 import {history} from "../index";
 import {loginActionCreators} from "../login/index";
 
@@ -16,7 +15,7 @@ interface StateProps {
 
 type Actions = typeof portfolioActions & typeof loginActionCreators;
 
-class MainApp extends React.Component<StateProps & Actions, any> {
+class UnboundApp extends React.Component<StateProps & Actions, any> {
 
   render(): JSX.Element | any | any {
     const {
@@ -24,13 +23,7 @@ class MainApp extends React.Component<StateProps & Actions, any> {
     } = this;
 
     if (!portfolio) {
-      // TODO consider whether this is its own route
-      return (
-        <Container>
-          <Header as="h2" content="Create a New Portfolio to Trade In"/>
-          <PortfolioCreator />
-        </Container>
-      )
+      return null;
     }
 
     return (
@@ -78,4 +71,4 @@ function mapStateToProps(state: RootState): StateProps {
   }
 }
 
-export default connect<StateProps, Actions, any>(mapStateToProps, {...portfolioActions, ...loginActionCreators})(MainApp)
+export const App = connect<StateProps, Actions, any>(mapStateToProps, {...portfolioActions, ...loginActionCreators})(UnboundApp);

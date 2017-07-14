@@ -1,6 +1,6 @@
 import {registrationReducer, RegistrationState} from "../registration/index";
-import {portfolioReducer, PortfolioState} from "./portfolio";
-import {tradesReducer, TradesState} from "./trade";
+import {portfolioReducer, PortfolioState} from "../portfolios/portfolio";
+import {tradesReducer, TradesState} from "../trades/trade";
 import {combineReducers} from "redux";
 import {loginReducer, LoginState} from "../login/index";
 import {User} from "../common/models";

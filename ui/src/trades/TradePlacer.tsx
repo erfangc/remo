@@ -1,5 +1,5 @@
 import * as React from "react";
-import {tradeActions} from "../reducers/trade";
+import {tradeActions} from "./trade";
 import {connect} from "react-redux";
 import {Button, Dropdown, Form} from "semantic-ui-react";
 type Actions = typeof tradeActions;

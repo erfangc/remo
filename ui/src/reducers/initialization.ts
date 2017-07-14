@@ -1,6 +1,6 @@
 import {Dispatch} from "redux";
-import {portfolioActions} from "./portfolio";
-import {tradeActions} from "./trade";
+import {portfolioActions} from "../portfolios/portfolio";
+import {tradeActions} from "../trades/trade";
 import axios from "axios";
 import {Portfolio, Trade, User} from "../common/models";
 import {history} from "../index";
@@ -34,9 +34,7 @@ export function attemptInitialization(dispatch: Dispatch<any>) {
         dispatch(tradeActions.setTrades(setTradesPayload));
         history.push('/');
       } else {
-        /*
-        TODO - figure out what to do if we cannot derive an active portfolio, most likely b/c there are no portfolios
-         */
+        history.push('/portfolios/create');
       }
-    })
+    });
 }

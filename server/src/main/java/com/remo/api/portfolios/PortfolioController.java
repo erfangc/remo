@@ -33,7 +33,7 @@ public class PortfolioController {
 
     @PutMapping
     public ResponseEntity<Portfolio> put(Principal principal,
-                                 @RequestBody Portfolio portfolio) {
+                                         @RequestBody Portfolio portfolio) {
         /*
         IMPORTANT - we override the username via principal to ensure we are saving the portfolio
         under the authenticated principal only
@@ -52,14 +52,14 @@ public class PortfolioController {
     }
 
     @PostMapping
-    public ResponseEntity<?> update(Principal principal,
-                                    @RequestBody Portfolio portfolio) {
+    public ResponseEntity<Portfolio> update(Principal principal,
+                                            @RequestBody Portfolio portfolio) {
         Portfolio found = portfolioRepository.findOne(portfolio.getPortfolioID());
         final String username = principal.getName();
         if (found.getUsername().equals(username)) {
             portfolio.setUsername(username);
-            portfolioRepository.save(portfolio);
-            return ResponseEntity.ok("updated");
+            Portfolio updatedPortfolio = portfolioRepository.save(portfolio);
+            return ResponseEntity.ok(updatedPortfolio);
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }

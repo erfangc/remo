@@ -2,7 +2,7 @@ import {Portfolio, Trade} from "../common/models";
 import {Action, createAction} from "redux-actions";
 import {Dispatch} from "redux";
 import axios from "axios";
-import {portfolioActions} from "./portfolio";
+import {portfolioActions} from "../portfolios/portfolio";
 
 /**
  * this is the store and reducer for all tradesByPortfolioID retrieved from the server
@@ -42,7 +42,7 @@ export const tradeActions = {
   ...actions,
   placeTrade: (portfolioID: string, trade: Trade) => (dispatch: Dispatch<any>) => {
     axios
-      .put(`api/trades/${portfolioID}`, trade)
+      .put(`/api/trades/${portfolioID}`, trade)
       .then(resp => {
         const {placedTrade, updatedPortfolio} = resp.data as PlaceTradeResponse;
         const placeTradeAction: PlacedTradeAction = {
@@ -58,7 +58,7 @@ export const tradeActions = {
   },
   deleteTrade: (portfolioID: string, tradeID: string) => (dispatch: Dispatch<any>) => {
     axios
-      .delete(`api/trades/${portfolioID}/${tradeID}`)
+      .delete(`/api/trades/${portfolioID}/${tradeID}`)
       .then(resp => {
         const trades = resp.data as Trade[];
         dispatch(actions.setTrades({portfolioID, trades}));

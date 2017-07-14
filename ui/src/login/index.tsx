@@ -123,10 +123,12 @@ export const loginActionCreators = {
       .catch(resp => dispatch({type: LOG_IN_UNSUCCESSFUL}))
   },
   logout: () => (dispatch: Dispatch<any>) => {
-    axios.post('/logout').then(() => {
-      dispatch({type: LOG_OUT});
-      history.push('/');
-    });
+    axios
+      .post('/logout')
+      .then(() => {
+        dispatch({type: LOG_OUT});
+        history.push('/authenticate');
+      });
   }
 };
 

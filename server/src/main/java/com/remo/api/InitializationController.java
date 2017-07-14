@@ -1,18 +1,18 @@
 package com.remo.api;
 
 import com.remo.api.portfolios.Portfolio;
-import com.remo.api.portfolios.PortfolioController;
+import com.remo.api.portfolios.PortfolioRepository;
 import com.remo.api.trades.Trade;
-import com.remo.api.trades.TradeController;
+import com.remo.api.trades.TradeRepository;
 import com.remo.registration.ImmutableUser;
+import com.remo.registration.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,20 +24,21 @@ import java.util.UUID;
 @RequestMapping("api/init")
 public class InitializationController {
 
-    private PortfolioController portfolioController;
-    private TradeController tradeController;
+    private PortfolioRepository portfolioRepository;
+    private TradeRepository tradeRepository;
+    private UserDetailService userDetailService;
 
     @Autowired
-    public InitializationController(PortfolioController portfolioController,
-                                    TradeController tradeController) {
-        this.portfolioController = portfolioController;
-        this.tradeController = tradeController;
+    public InitializationController(PortfolioRepository portfolioRepository, TradeRepository tradeRepository, UserDetailService userDetailService) {
+        this.portfolioRepository = portfolioRepository;
+        this.tradeRepository = tradeRepository;
+        this.userDetailService = userDetailService;
     }
 
     @GetMapping
-    public ResponseEntity<InitializationResponse> get(UsernamePasswordAuthenticationToken principal) {
-        List<Portfolio> portfolios = portfolioController.getAll(principal);
-        ImmutableUser user = (ImmutableUser) principal.getPrincipal();
+    public ResponseEntity<InitializationResponse> get(Principal principal) {
+        List<Portfolio> portfolios = portfolioRepository.findByUsername(principal.getName());
+        ImmutableUser user = ((ImmutableUser) userDetailService.loadUserByUsername(principal.getName())).withPassword("");
         /*
         for initialization, we always retrieve all of the users' portfolios
          and all the trades of his 1st portfolio
@@ -50,19 +51,13 @@ public class InitializationController {
             resp = ResponseEntity.ok(new InitializationResponse().setUser(user));
         } else {
             UUID portfolioID = portfolios.get(0).getPortfolioID();
-            ResponseEntity<List<Trade>> trades = tradeController.getByPortfolioID(principal, portfolioID);
-
-            if (trades.getStatusCode().equals(HttpStatus.OK)) {
-                resp = ResponseEntity.ok(
-                        new InitializationResponse()
-                                .setTrades(trades.getBody())
-                                .setPortfolios(portfolios)
-                                .setUser(user)
-                                .setActivePortfolio(0)
-                );
-            } else {
-                resp = new ResponseEntity<>(trades.getStatusCode());
-            }
+            List<Trade> trades = tradeRepository.findByPortfolioID(portfolioID);
+            resp = ResponseEntity.ok(
+                    new InitializationResponse()
+                            .setTrades(trades)
+                            .setPortfolios(portfolios)
+                            .setUser(user)
+                            .setActivePortfolio(0));
         }
         return resp;
     }

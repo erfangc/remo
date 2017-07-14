@@ -1,10 +1,11 @@
-import {tradeActions} from "../reducers/trade";
+import {tradeActions} from "./trade";
 import {Trade} from "../common/models";
 import {connect} from "react-redux";
 import * as React from "react";
 import {Button, Table} from "semantic-ui-react";
-import TradePlacer from "../components/TradePlacer";
+import TradePlacer from ".//TradePlacer";
 import {RootState} from "../reducers/index";
+import * as moment from "moment";
 
 interface StateProps {
   trades: Trade[]
@@ -64,6 +65,7 @@ const ExistingTrades = (props) => {
           <Table.HeaderCell>Quantity</Table.HeaderCell>
           <Table.HeaderCell>Trade Price</Table.HeaderCell>
           <Table.HeaderCell>Description / Remarks</Table.HeaderCell>
+          <Table.HeaderCell>Trade Time</Table.HeaderCell>
           <Table.HeaderCell>Actions</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
@@ -75,6 +77,9 @@ const ExistingTrades = (props) => {
               <Table.Cell>{trade.quantity}</Table.Cell>
               <Table.Cell>{trade.price}</Table.Cell>
               <Table.Cell>{trade.description}</Table.Cell>
+              <Table.Cell>
+                {moment(trade.tradeTime).format('YYYY-MM-DD @ hh:mm:ssA')}
+                </Table.Cell>
               <Table.Cell>
                 <Button color='red'
                         icon="close"

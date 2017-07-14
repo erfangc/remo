@@ -114,10 +114,6 @@ class UnboundEditUserComponent extends React.Component<User & typeof userActionC
             content="Confirm"
             onClick={() => this.updateUser()}
           />
-          <Button
-            onClick={() => history.goBack()}
-            content="Back"
-          />
         </Form>
       </Container>
     );
