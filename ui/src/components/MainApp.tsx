@@ -3,35 +3,44 @@ import {portfolioActions} from "../reducers/portfolio";
 import TradeTable from "./TradeTable";
 import {connect} from "react-redux";
 import {RootState} from "../reducers/index";
-import {Container, Grid, Header} from "semantic-ui-react";
+import {Button, Container, Grid, Header} from "semantic-ui-react";
 import {Portfolio} from "../common/models";
 import PortfolioInfo from "./PortfolioInfo";
 import PortfolioCreator from "./PortfolioCreator";
+import {history} from "../index";
+import {loginActionCreators} from "../login/index";
 
 interface StateProps {
   portfolio: Portfolio
 }
 
-type Actions = typeof portfolioActions;
+type Actions = typeof portfolioActions & typeof loginActionCreators;
 
 class MainApp extends React.Component<StateProps & Actions, any> {
 
   render(): JSX.Element | any | any {
     const {
-      props: {portfolio}
+      props: {portfolio, logout}
     } = this;
 
     if (!portfolio) {
+      // TODO consider whether this is its own route
       return (
         <Container>
-          <Header as="h2" content="Create a New Portfolio to Trade With"/>
+          <Header as="h2" content="Create a New Portfolio to Trade In"/>
           <PortfolioCreator />
         </Container>
       )
     }
 
     return (
-      <Grid container celled>
+      <Grid container>
+        <Grid.Row>
+          <Grid.Column width={5}>
+            <Button icon="user" basic content="Your Account" onClick={() => history.push('/user/edit')}/>
+            <Button basic color="red" content="Log Out" onClick={() => logout()}/>
+          </Grid.Column>
+        </Grid.Row>
         <Grid.Row>
           <Grid.Column width={6}>
             <PortfolioInfo portfolio={portfolio}/>
@@ -69,4 +78,4 @@ function mapStateToProps(state: RootState): StateProps {
   }
 }
 
-export default connect<StateProps, Actions, any>(mapStateToProps, portfolioActions)(MainApp)
+export default connect<StateProps, Actions, any>(mapStateToProps, {...portfolioActions, ...loginActionCreators})(MainApp)

@@ -30,3 +30,12 @@ export interface CashBalanceID {
   portfolioID: string
   currency: string
 }
+
+// TODO consider merging this model with Registration
+export interface User {
+  username: string
+  firstName: string
+  lastName: string
+  email: string
+  occupation: string
+}

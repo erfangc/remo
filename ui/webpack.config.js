@@ -65,11 +65,11 @@ module.exports = {
               loader: 'postcss-loader',
               options: {
                 plugins: [
-                  require('postcss-import')({ addDependencyTo: webpack }),
+                  require('postcss-import')({addDependencyTo: webpack}),
                   require('postcss-url')(),
                   require('postcss-cssnext')(),
                   require('postcss-reporter')(),
-                  require('postcss-browser-reporter')({ disabled: isProduction }),
+                  require('postcss-browser-reporter')({disabled: isProduction}),
                 ]
               }
             }
@@ -77,9 +77,9 @@ module.exports = {
         })
       },
       // static assets
-      { test: /\.html$/, use: 'html-loader' },
-      { test: /\.png$/, use: 'url-loader?limit=10000' },
-      { test: /\.jpg$/, use: 'file-loader' },
+      {test: /\.html$/, use: 'html-loader'},
+      {test: /\.png$/, use: 'url-loader?limit=10000'},
+      {test: /\.jpg$/, use: 'file-loader'},
     ],
   },
   plugins: [
@@ -99,9 +99,10 @@ module.exports = {
   ],
   devServer: {
     proxy: {
-        "/registration": "http://localhost:8080",
-        "/api": "http://localhost:8080",
-        "/login": "http://localhost:8080"
+      "/registration": "http://localhost:8080",
+      "/api": "http://localhost:8080",
+      "/login": "http://localhost:8080",
+      "/logout": "http://localhost:8080"
     },
     contentBase: sourcePath,
     hot: true,

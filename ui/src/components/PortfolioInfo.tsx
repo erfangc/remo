@@ -35,7 +35,10 @@ class PortfolioInfo extends React.Component<OwnProps & Actions, State> {
   renderSubComponent() {
     const {state: {subComponentToRender}, props: {portfolio}} = this;
     if (subComponentToRender === SubComponentToRender.PortfolioCreator) {
-      return <PortfolioCreator />;
+      return (
+        <PortfolioCreator
+          hide={() => this.setState({subComponentToRender: SubComponentToRender.PortfolioSummary})}
+        />);
     } else {
       return <PortfolioSummary portfolio={portfolio}/>;
     }

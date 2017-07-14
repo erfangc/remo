@@ -76,3 +76,31 @@ for building a modern distributed business system. I plan to build the system in
 ## Phase 5 - Portfolio Valuation and Analysis
 
 ## Phase 6 - Real-Time 'Godview' Dashboard
+
+# Notes
+
+## UI
+Unlike many React/Redux projects found on the internet, I choose to organize front-end by domain instead of by
+its framework constructs
+
+i.e.
+
+```
+|_user
+    |_component
+    |_reducers
+    |_actions
+    
+|_portfolio
+    |_component
+    |_reducers
+    |_actions
+...
+```
+
+Instead of
+```
+|_reducers
+|_actions
+|_portfolio
+```

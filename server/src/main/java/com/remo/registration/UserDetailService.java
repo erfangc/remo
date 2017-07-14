@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -69,6 +70,8 @@ public class UserDetailService implements UserDetailsService {
                             new Object[]{username},
                             (rs, rowNum) -> ImmutableUser
                                     .builder()
+                                    .firstName(rs.getString("first_name"))
+                                    .lastName(rs.getString("last_name"))
                                     .username(rs.getString("username"))
                                     .password(rs.getString("password"))
                                     .email(rs.getString("email"))

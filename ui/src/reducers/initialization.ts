@@ -2,13 +2,15 @@ import {Dispatch} from "redux";
 import {portfolioActions} from "./portfolio";
 import {tradeActions} from "./trade";
 import axios from "axios";
-import {Portfolio, Trade} from "../common/models";
+import {Portfolio, Trade, User} from "../common/models";
 import {history} from "../index";
+import {userActionCreators} from "../user/index";
 
 export interface InitializationResponse {
   portfolios: Portfolio[]
   activePortfolio: number
   trades: Trade[]
+  user: User
 }
 
 /**
@@ -16,10 +18,11 @@ export interface InitializationResponse {
  */
 export function attemptInitialization(dispatch: Dispatch<any>) {
   axios
-    .get('api/init')
+    .get('/api/init')
     .then(resp => {
-      const {portfolios, trades, activePortfolio} = resp.data as InitializationResponse;
+      const {portfolios, trades, activePortfolio, user} = resp.data as InitializationResponse;
       dispatch(portfolioActions.setPortfolios(portfolios));
+      dispatch(userActionCreators.receivedUser(user));
       /*
        server sets activePortfolio to null if there are no portfolios
        */
@@ -32,7 +35,7 @@ export function attemptInitialization(dispatch: Dispatch<any>) {
         history.push('/');
       } else {
         /*
-
+        TODO - figure out what to do if we cannot derive an active portfolio, most likely b/c there are no portfolios
          */
       }
     })

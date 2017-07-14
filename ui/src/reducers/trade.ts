@@ -90,7 +90,7 @@ function tradesByPortfolioIDReducer(state: { [key: string]: Trade[] }, action: T
     case SetTrades:
       return {...state, [action.payload.portfolioID]: action.payload.trades};
     case PlacedTrade:
-      const existingTrades = state[action.payload.portfolioID];
+      const existingTrades = state[action.payload.portfolioID] || [];
       return {...state, [action.payload.portfolioID]: [...existingTrades, action.payload.trade]};
     default:
       return state;

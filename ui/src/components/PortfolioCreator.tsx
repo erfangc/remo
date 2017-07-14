@@ -4,12 +4,16 @@ import {Button, Form} from "semantic-ui-react";
 import {portfolioActions} from "../reducers/portfolio";
 import {connect} from "react-redux";
 
+interface OwnProps {
+  hide?: () => void
+}
+
 type Actions = typeof portfolioActions
 
 /**
  * form inputs for creating a portfolio, including the portfolio's name
  */
-class PortfolioCreator extends React.Component<Actions, Portfolio> {
+class PortfolioCreator extends React.Component<OwnProps & Actions, Portfolio> {
 
   constructor(props: any) {
     super(props);
@@ -60,7 +64,11 @@ class PortfolioCreator extends React.Component<Actions, Portfolio> {
   }
 
   createPortfolio() {
-    this.props.createNewPortfolio(this.state);
+    const {props: {hide, createNewPortfolio}} = this;
+    createNewPortfolio(this.state);
+    if (hide) {
+      hide();
+    }
   }
 
   updateCashBalance(currency: string, value: string) {
@@ -73,6 +81,7 @@ class PortfolioCreator extends React.Component<Actions, Portfolio> {
     });
     this.setState({cashBalances: updatedCashBalances})
   }
+
 }
 
-export default connect<any, Actions, any>(null, portfolioActions)(PortfolioCreator);
+export default connect<any, Actions, OwnProps>(null, portfolioActions)(PortfolioCreator);

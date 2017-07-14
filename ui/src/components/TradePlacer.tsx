@@ -22,7 +22,7 @@ interface OwnProps {
 }
 
 /**
- * component that places a new trade, wired to the actions that place the new trade
+ * component that places a new trade, wired to the loginActionCreators that place the new trade
  * but keep temp state for form fields
  */
 class TradePlacer extends React.Component<Actions & OwnProps, State> {
