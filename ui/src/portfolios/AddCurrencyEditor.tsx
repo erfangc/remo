@@ -27,7 +27,6 @@ export class AddCurrencyEditor extends React.Component<AddCurrencyEditorProps, S
         <Dropdown selection
                   options={availableCurrencies.map(ccy => ({text: ccy, value: ccy, key: ccy}))}
                   onChange={(_, data) => {
-                    console.log(data);
                     this.setState({ccy: data.value.toString()});
                   }}
         />

@@ -10,7 +10,7 @@ CREATE TABLE remo.users (
   first_name VARCHAR(255) NOT NULL,
   last_name  VARCHAR(255) NOT NULL,
   email      VARCHAR(255) NOT NULL,
-  occupation VARCHAR(100),
+  occupation VARCHAR(100) DEFAULT NULL,
   enabled    BOOLEAN      NOT NULL
 );
 
@@ -58,3 +58,24 @@ CREATE TABLE remo.cash_balances (
 
 CREATE INDEX ix_portfolio_security_ids
   ON remo.trades (portfolio_id, security_id_type, security_id);
+
+-- create the security data base
+CREATE TABLE remo.securities (
+  security_id      VARCHAR(55)  NOT NULL,
+  security_id_type VARCHAR(55)  NOT NULL,
+  description      VARCHAR(255) NOT NULL,
+  currency         CHAR(3)      NOT NULL,
+  PRIMARY KEY (security_id_type, security_id)
+);
+
+-- create the security foreign identifier table
+CREATE TABLE remo.security_foreign_identifiers (
+  security_id       VARCHAR(55)  NOT NULL,
+  security_id_type  VARCHAR(55)  NOT NULL,
+  vendor            VARCHAR(255) NOT NULL,
+  vendor_identifier VARCHAR(255) NOT NULL,
+  PRIMARY KEY (security_id_type, security_id, vendor)
+);
+
+CREATE INDEX ix_vendor_identifier
+  ON remo.security_foreign_identifiers (vendor_identifier);

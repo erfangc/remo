@@ -4,15 +4,3 @@ spring:
     password: foobar
     url: jdbc:postgresql://localhost:5432/postgres
     driver-class-name: org.postgresql.Driver
-#---
-#spring:
-#  profiles: h2
-#  datasource:
-#    username: sa
-#    password:
-#    url: jdbc:h2:file:~/test
-#    driver-class-name: org.h2.Driver
-#  h2:
-#    console:
-#      enabled: true
-#      path: /h2

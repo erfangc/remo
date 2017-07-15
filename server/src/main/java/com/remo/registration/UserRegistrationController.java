@@ -8,11 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +36,7 @@ public class UserRegistrationController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createUser(@RequestBody ImmutableUser request) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody ImmutableUser request, BindingResult bindingResult) {
         final String encodedPassword = passwordEncoder.encode(request.getPassword());
         ImmutableUser userWithHashedPassword = ImmutableUser
                 .builder()
