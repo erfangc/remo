@@ -42,8 +42,8 @@ public class SecurityController {
     private ResponseEntity<Security> persist(Security security) {
         security.getSecurityForeignIdentifiers().forEach(fID -> {
             fID.setSecurity(security);
-            fID.setSecurityID(security.getSecurityKey().getSecurityID());
-            fID.setSecurityIDType(security.getSecurityKey().getSecurityIDType());
+            fID.setSecurityID(security.getSecurityID());
+            fID.setSecurityIDType(security.getSecurityIDType());
         });
         Security saved = securityRepository.save(security);
         return ResponseEntity.ok(saved);

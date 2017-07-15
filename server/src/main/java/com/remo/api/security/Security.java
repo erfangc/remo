@@ -11,11 +11,16 @@ import java.util.List;
  * aggregates
  */
 @Entity
+@IdClass(SecurityKey.class)
 @Table(name = "securities", schema = "remo")
 public class Security {
 
-    @EmbeddedId
-    private SecurityKey securityKey;
+    @NotEmpty
+    @Column(name = "security_id")
+    private String securityID;
+    @NotEmpty
+    @Column(name = "security_id_type")
+    private String securityIDType;
     @Size(max = 10)
     @Column
     private String description;
@@ -23,6 +28,24 @@ public class Security {
     private String currency;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "security")
     private List<SecurityForeignIdentifier> securityForeignIdentifiers;
+
+    public String getSecurityID() {
+        return securityID;
+    }
+
+    public Security setSecurityID(String securityID) {
+        this.securityID = securityID;
+        return this;
+    }
+
+    public String getSecurityIDType() {
+        return securityIDType;
+    }
+
+    public Security setSecurityIDType(String securityIDType) {
+        this.securityIDType = securityIDType;
+        return this;
+    }
 
     public String getDescription() {
         return description;
@@ -39,15 +62,6 @@ public class Security {
 
     public Security setCurrency(String currency) {
         this.currency = currency;
-        return this;
-    }
-
-    public SecurityKey getSecurityKey() {
-        return securityKey;
-    }
-
-    public Security setSecurityKey(SecurityKey securityKey) {
-        this.securityKey = securityKey;
         return this;
     }
 
