@@ -3,7 +3,6 @@ DROP SCHEMA remo CASCADE;
 CREATE SCHEMA remo;
 
 -- create the user schema
-
 CREATE TABLE remo.users (
   username   VARCHAR(50)  NOT NULL PRIMARY KEY,
   password   VARCHAR(500) NOT NULL,
@@ -23,7 +22,6 @@ CREATE UNIQUE INDEX ix_auth_username
   ON remo.authorities (username, authority);
 
 -- create the portfolio schema + trading schema
-
 CREATE TABLE remo.portfolios (
   portfolio_id   UUID         NOT NULL PRIMARY KEY,
   portfolio_name VARCHAR(255) NOT NULL,

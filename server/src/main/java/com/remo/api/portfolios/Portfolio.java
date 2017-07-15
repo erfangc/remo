@@ -1,7 +1,13 @@
 package com.remo.api.portfolios;
 
+import com.remo.validation.ValidCurrency;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -11,16 +17,26 @@ public class Portfolio {
     @Id
     @Column(name = "portfolio_id")
     private UUID portfolioID;
+    @NotEmpty
+    @Size(max = 255)
     @Column(name = "portfolio_name")
     private String portfolioName;
     @Column
+    @NotEmpty
+    @Size(max = 50)
     private String username;
     @Column
+    @NotEmpty
+    @ValidCurrency
     private String currency;
     @Column
+    @Size(max = 255)
     private String description;
 
+    private Map<Object, String> validationErrors;
+
     @OneToMany(mappedBy = "portfolio", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Valid
     private List<CashBalance> cashBalances;
 
     public String getPortfolioName() {
@@ -74,6 +90,15 @@ public class Portfolio {
 
     public Portfolio setCashBalances(List<CashBalance> cashBalances) {
         this.cashBalances = cashBalances;
+        return this;
+    }
+
+    public Map<Object, String> getValidationErrors() {
+        return validationErrors;
+    }
+
+    public Portfolio setValidationErrors(Map<Object, String> validationErrors) {
+        this.validationErrors = validationErrors;
         return this;
     }
 }
