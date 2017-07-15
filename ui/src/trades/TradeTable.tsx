@@ -79,7 +79,7 @@ const ExistingTrades = (props) => {
               <Table.Cell>{trade.description}</Table.Cell>
               <Table.Cell>
                 {moment(trade.tradeTime).format('YYYY-MM-DD @ hh:mm:ssA')}
-                </Table.Cell>
+              </Table.Cell>
               <Table.Cell>
                 <Button color='red'
                         icon="close"
