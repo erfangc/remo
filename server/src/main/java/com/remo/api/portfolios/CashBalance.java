@@ -3,6 +3,7 @@ package com.remo.api.portfolios;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 
 /**
  * {@link CashBalance} Entity to represent the cash balance in a single currency in a given portfolio
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "cash_balances", schema = "remo")
 public class CashBalance {
 
+    @Valid
     @EmbeddedId
     private CashBalanceID cashBalanceID;
 

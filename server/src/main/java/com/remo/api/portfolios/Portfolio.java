@@ -22,8 +22,6 @@ public class Portfolio {
     @Column(name = "portfolio_name")
     private String portfolioName;
     @Column
-    @NotEmpty
-    @Size(max = 50)
     private String username;
     @Column
     @NotEmpty
@@ -33,10 +31,9 @@ public class Portfolio {
     @Size(max = 255)
     private String description;
 
-    private Map<Object, String> validationErrors;
-
-    @OneToMany(mappedBy = "portfolio", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "portfolio", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Valid
+    @NotEmpty
     private List<CashBalance> cashBalances;
 
     public String getPortfolioName() {
@@ -93,12 +90,4 @@ public class Portfolio {
         return this;
     }
 
-    public Map<Object, String> getValidationErrors() {
-        return validationErrors;
-    }
-
-    public Portfolio setValidationErrors(Map<Object, String> validationErrors) {
-        this.validationErrors = validationErrors;
-        return this;
-    }
 }

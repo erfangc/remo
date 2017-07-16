@@ -48,7 +48,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/security/**")
                 .hasAuthority("ADMIN")
-                .antMatchers("/api/portfolios/**", "/api/trades/**", "api/user/**", "api/init")
+                .antMatchers("/api/portfolios/**", "/api/trades/**", "/api/user/**", "/api/init")
                 .authenticated()
                 .and()
                 .formLogin()

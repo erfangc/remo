@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Documented
 @Constraint(validatedBy = CurrencyValidator.class)
 public @interface ValidCurrency {
-    String message() default "value must match one of the values in the list";
+    String message() default "you must choose a valid currency";
 
     Class<?>[] groups() default {};
 

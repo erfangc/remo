@@ -1,6 +1,6 @@
 import * as React from "react";
 import {portfolioActions} from "../portfolios/portfolio";
-import TradeTable from "../trades/TradeTable";
+import {TradeTable} from "../trades/TradeTable";
 import {connect} from "react-redux";
 import {RootState} from "../reducers/index";
 import {Button, Grid} from "semantic-ui-react";

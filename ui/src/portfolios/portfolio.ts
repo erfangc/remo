@@ -10,7 +10,7 @@ import {Dispatch} from "redux";
 import {RootState} from "../reducers/index";
 import {tradeActions} from "../trades/trade";
 import {history} from "../index";
-
+import {get} from "lodash";
 export interface PortfolioState {
   portfolios: Portfolio[]
   activePortfolio: number
@@ -52,23 +52,39 @@ const actions = {
 
 export const portfolioActions = {
   ...actions,
-  updatePortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
+  updatePortfolio: (portfolio: Portfolio, onSuccess?: () => void, onValidationError?: (fieldErrors: any) => void) => (dispatch: Dispatch<any>) => {
     axios
       .post(`/api/portfolios`, portfolio)
       .then(resp => {
         dispatch({type: UpdatePortfolio, payload: resp.data});
-        history.goBack();
+        if (onSuccess) {
+          onSuccess();
+        }
+      })
+      .catch(error => {
+        const fieldErrors = get(error, 'response.data.fieldErrors');
+        if (fieldErrors && onValidationError) {
+          onValidationError(fieldErrors);
+        }
       });
   },
   /**
    * creates a new portfolio
    */
-  createNewPortfolio: (portfolio: Portfolio) => (dispatch: Dispatch<any>) => {
+  createNewPortfolio: (portfolio: Portfolio, onSuccess?: () => void, onValidationError?: (fieldErrors: any) => void) => (dispatch: Dispatch<any>) => {
     axios
       .put(`/api/portfolios`, portfolio)
       .then(resp => {
         dispatch({type: AddNewPortfolio, payload: resp.data});
-        history.goBack();
+        if (onSuccess) {
+          onSuccess();
+        }
+      })
+      .catch(error => {
+        const fieldErrors = get(error, 'response.data.fieldErrors');
+        if (fieldErrors && onValidationError) {
+          onValidationError(fieldErrors);
+        }
       })
   },
   deletePortfolio: (portfolioID: string) => (dispatch: Dispatch<any>, getState: () => RootState) => {

@@ -22,9 +22,6 @@ axios.interceptors.response.use(null, error => {
   if (error.response.status === 401) {
     console.error("not logged in, redirecting to login page");
     history.push('/authenticate');
-  } else if (error.response.status === 400) {
-    const message = get(error, 'response.data.message)');
-    alert(message);
   } else if (error.response.status === 500) {
     const message = get(error, 'response.data.message)');
     alert(message);

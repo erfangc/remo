@@ -9,7 +9,4 @@ import java.util.List;
  * Created by erfangchen on 7/15/17.
  */
 public interface SecurityRepository extends CrudRepository<Security, SecurityKey> {
-    List<Security> findBySecurityKey(SecurityKey securityKey);
-
-    Security deleteBySecurityKey(SecurityKey securityKey);
 }

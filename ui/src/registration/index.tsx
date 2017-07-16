@@ -1,7 +1,6 @@
 import {Action, createAction} from "redux-actions";
 import {Dispatch} from "redux";
 import axios from "axios";
-import {history} from "../index";
 import {fromPairs} from "lodash";
 import * as React from "react";
 import {Button, Container, Form, Header, Message} from "semantic-ui-react";
@@ -72,11 +71,7 @@ const actions = {
            */
           const username = fields['username'].value;
           const password = fields['password'].value;
-          loginActionCreators
-            .login(username, password)(dispatch)
-            .then(() => {
-              setTimeout(() => history.push('/'), 1000);
-            });
+          loginActionCreators.login(username, password)(dispatch)
         },
         ({response: {data, status}}) => {
           if (status === 400) {

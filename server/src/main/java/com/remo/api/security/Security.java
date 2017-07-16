@@ -15,9 +15,11 @@ import java.util.List;
 @Table(name = "securities", schema = "remo")
 public class Security {
 
+    @Id
     @NotEmpty
     @Column(name = "security_id")
     private String securityID;
+    @Id
     @NotEmpty
     @Column(name = "security_id_type")
     private String securityIDType;

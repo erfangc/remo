@@ -1,6 +1,6 @@
 package com.remo.api.portfolios;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.remo.api.UserInputValidationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +26,9 @@ import static java.util.stream.Collectors.toMap;
 @RestController
 @RequestMapping("api/portfolios")
 public class PortfolioController {
+
     private PortfolioRepository portfolioRepository;
 
-    @Autowired
     public PortfolioController(PortfolioRepository portfolioRepository) {
         this.portfolioRepository = portfolioRepository;
     }
@@ -42,8 +42,7 @@ public class PortfolioController {
     public ResponseEntity<Portfolio> put(Principal principal,
                                          @Valid @RequestBody Portfolio portfolio,
                                          BindingResult bindingResult) {
-        ResponseEntity<Portfolio> validationErrors = validatePortfolio(bindingResult);
-        if (validationErrors != null) return validationErrors;
+        validatePortfolio(bindingResult);
         /*
         IMPORTANT - we override the username via principal to ensure we are saving the portfolio
         under the authenticated principal only
@@ -61,29 +60,11 @@ public class PortfolioController {
         return ResponseEntity.ok(newPortfolio);
     }
 
-    private ResponseEntity<Portfolio> validatePortfolio(BindingResult bindingResult) {
-        final List<ObjectError> allErrors = bindingResult.getAllErrors();
-        if (!allErrors.isEmpty()) {
-            Map<Object, String> validationErrors = allErrors
-                    .stream()
-                    .filter(e -> e instanceof FieldError)
-                    .collect(
-                            toMap(
-                                    errorObject -> ((FieldError) errorObject).getField(),
-                                    DefaultMessageSourceResolvable::getDefaultMessage
-                            )
-                    );
-            return new ResponseEntity<>(new Portfolio().setValidationErrors(validationErrors), HttpStatus.BAD_REQUEST);
-        }
-        return null;
-    }
-
     @PostMapping
     public ResponseEntity<Portfolio> update(Principal principal,
-                                            @RequestBody Portfolio portfolio,
+                                            @Valid @RequestBody Portfolio portfolio,
                                             BindingResult bindingResult) {
-        ResponseEntity<Portfolio> validationErrors = validatePortfolio(bindingResult);
-        if (validationErrors != null) return validationErrors;
+        validatePortfolio(bindingResult);
         Portfolio found = portfolioRepository.findOne(portfolio.getPortfolioID());
         final String username = principal.getName();
         if (found.getUsername().equals(username)) {
@@ -105,6 +86,22 @@ public class PortfolioController {
             return ResponseEntity.ok("deleted");
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void validatePortfolio(BindingResult bindingResult) {
+        final List<ObjectError> allErrors = bindingResult.getAllErrors();
+        if (!allErrors.isEmpty()) {
+            Map<Object, String> validationErrors = allErrors
+                    .stream()
+                    .filter(e -> e instanceof FieldError)
+                    .collect(
+                            toMap(
+                                    e -> ((FieldError) e).getField(),
+                                    DefaultMessageSourceResolvable::getDefaultMessage
+                            )
+                    );
+            throw new UserInputValidationException().setFieldErrors(validationErrors);
         }
     }
 
