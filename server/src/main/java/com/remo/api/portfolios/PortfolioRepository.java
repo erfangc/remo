@@ -1,5 +1,6 @@
 package com.remo.api.portfolios;
 
+import com.remo.api.portfolios.models.Portfolio;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

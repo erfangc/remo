@@ -1,4 +1,4 @@
-package com.remo.api.portfolios;
+package com.remo.api.portfolios.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

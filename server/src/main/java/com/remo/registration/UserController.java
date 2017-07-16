@@ -21,10 +21,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> updateUser(@RequestBody ImmutableUser user, Principal principal) {
-        final ImmutableUser withUsername = user.withUsername(principal.getName());
-        userDetailService.updateUser(withUsername);
-        return ResponseEntity.ok(withUsername);
+    public ResponseEntity<User> updateUser(@RequestBody User user, Principal principal) {
+        user.setUsername(principal.getName());
+        userDetailService.updateUser(user);
+        return ResponseEntity.ok(user);
     }
 
 }

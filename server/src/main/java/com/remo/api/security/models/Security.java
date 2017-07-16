@@ -1,4 +1,4 @@
-package com.remo.api.security;
+package com.remo.api.security.models;
 
 import org.hibernate.validator.constraints.NotEmpty;
 

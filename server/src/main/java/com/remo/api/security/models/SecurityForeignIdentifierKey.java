@@ -1,4 +1,4 @@
-package com.remo.api.security;
+package com.remo.api.security.models;
 
 import java.io.Serializable;
 

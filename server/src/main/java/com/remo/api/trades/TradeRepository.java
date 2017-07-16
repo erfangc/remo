@@ -1,5 +1,6 @@
 package com.remo.api.trades;
 
+import com.remo.api.trades.models.Trade;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

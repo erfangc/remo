@@ -1,7 +1,9 @@
 package com.remo.api.trades;
 
-import com.remo.api.portfolios.Portfolio;
+import com.remo.api.portfolios.models.Portfolio;
 import com.remo.api.portfolios.PortfolioRepository;
+import com.remo.api.trades.models.PlaceTradeResponse;
+import com.remo.api.trades.models.Trade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
@@ -10,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.remo.api.AppControllerAdvice.validateBindingResult;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.joining;
 
@@ -81,8 +85,10 @@ public class TradeController {
 
     @PutMapping
     public ResponseEntity<PlaceTradeResponse> placeTrade(Principal principal,
-                                                         @RequestBody Trade trade,
+                                                         @Valid @RequestBody Trade trade,
+                                                         BindingResult bindingResult,
                                                          @PathVariable UUID portfolioID) throws IOException {
+        validateBindingResult(bindingResult);
         /*
         first we must ensure the user has permission to place trade on the given portfolio
          */

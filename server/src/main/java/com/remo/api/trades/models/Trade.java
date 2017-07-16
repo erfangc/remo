@@ -1,9 +1,14 @@
-package com.remo.api.trades;
+package com.remo.api.trades.models;
+
+import com.remo.validation.ValidCurrency;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,23 +25,38 @@ public class Trade {
     private UUID tradeID;
     @Column(name = "portfolio_id")
     private UUID portfolioID;
+
+    @NotEmpty
     @Column(name = "security_id")
     private String securityID;
+
+    @NotEmpty
     @Column(name = "security_id_type")
     private String securityIDType;
+
     @Column(name = "trade_time")
     private Date tradeTime;
+
     @Column(name = "accrued_interest")
     private double accruedInterest = 0;
+
+    @NotNull
     @Column
     private double price;
+
+    @ValidCurrency
     @Column
     private String currency;
+
     @Column
     private double commission = 0;
+
+    @NotNull
     @Column
     private double quantity;
+
     @Column
+    @Size(max = 255)
     private String description = "";
 
     public double getPrice() {

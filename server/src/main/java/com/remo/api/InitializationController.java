@@ -1,10 +1,10 @@
 package com.remo.api;
 
-import com.remo.api.portfolios.Portfolio;
+import com.remo.api.portfolios.models.Portfolio;
 import com.remo.api.portfolios.PortfolioRepository;
-import com.remo.api.trades.Trade;
+import com.remo.api.trades.models.Trade;
 import com.remo.api.trades.TradeRepository;
-import com.remo.registration.ImmutableUser;
+import com.remo.registration.User;
 import com.remo.registration.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +38,7 @@ public class InitializationController {
     @GetMapping
     public ResponseEntity<InitializationResponse> get(Principal principal) {
         List<Portfolio> portfolios = portfolioRepository.findByUsername(principal.getName());
-        ImmutableUser user = ((ImmutableUser) userDetailService.loadUserByUsername(principal.getName())).withPassword("");
+        User user = ((User) userDetailService.loadUserByUsername(principal.getName())).setPassword("");
         /*
         for initialization, we always retrieve all of the users' portfolios
          and all the trades of his 1st portfolio

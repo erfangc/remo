@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -62,26 +61,20 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("Querying user detail for {}", username);
-        ImmutableUser user;
+        User user;
         try {
             user = jdbcTemplate
                     .queryForObject(
                             "SELECT * FROM remo.users WHERE username = ?",
                             new Object[]{username},
-                            (rs, rowNum) -> ImmutableUser
-                                    .builder()
-                                    .firstName(rs.getString("first_name"))
-                                    .lastName(rs.getString("last_name"))
-                                    .username(rs.getString("username"))
-                                    .password(rs.getString("password"))
-                                    .email(rs.getString("email"))
-                                    .occupation(rs.getString("occupation"))
-                                    .isEnabled(rs.getBoolean("enabled"))
-                                    .isAccountNonLocked(true)
-                                    .isCredentialsNonExpired(true)
-                                    .isAccountNonExpired(true)
-                                    .authorities(Collections.emptySet())
-                                    .build()
+                            (rs, rowNum) -> new User()
+                                    .setFirstName(rs.getString("first_name"))
+                                    .setLastName(rs.getString("last_name"))
+                                    .setUsername(rs.getString("username"))
+                                    .setPassword(rs.getString("password"))
+                                    .setEmail(rs.getString("email"))
+                                    .setOccupation(rs.getString("occupation"))
+                                    .setGrantedAuthorities(new ArrayList<>())
                     );
         } catch (EmptyResultDataAccessException exception) {
             logger.error(exception.getMessage());
@@ -94,15 +87,13 @@ public class UserDetailService implements UserDetailsService {
                 new Object[]{username}
         );
         logger.info("{} has the following authorities {}", username, authorities);
-        return ImmutableUser
-                .builder()
-                .from(user)
-                .authorities(authorities
-                        .stream()
-                        .map(row -> new SimpleGrantedAuthority((String) row.get("authority")))
-                        .collect(toList())
-                )
-                .build();
+        return user
+                .setGrantedAuthorities(
+                        authorities
+                                .stream()
+                                .map(row -> new SimpleGrantedAuthority((String) row.get("authority")))
+                                .collect(toList())
+                );
     }
 
     public void updateUser(User user) {
@@ -110,10 +101,10 @@ public class UserDetailService implements UserDetailsService {
                 "UPDATE remo.users SET first_name = ?, last_name = ?, occupation = ?, email = ? WHERE username = ?";
         jdbcTemplate.update(
                 INSERT_SQL,
-                user.firstName(),
-                user.lastName(),
-                user.occupation(),
-                user.email(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getOccupation(),
+                user.getEmail(),
                 user.getUsername()
         );
     }
@@ -122,12 +113,12 @@ public class UserDetailService implements UserDetailsService {
         final String INSERT_SQL =
                 "INSERT INTO remo.users (first_name, last_name, username, password, occupation, email, enabled) VALUES (?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(INSERT_SQL,
-                user.firstName(),
-                user.lastName(),
+                user.getFirstName(),
+                user.getLastName(),
                 user.getUsername(),
                 user.getPassword(),
-                user.occupation(),
-                user.email(),
+                user.getOccupation(),
+                user.getEmail(),
                 user.isEnabled()
         );
     }

@@ -1,6 +1,6 @@
-package com.remo.api.trades;
+package com.remo.api.trades.models;
 
-import com.remo.api.portfolios.Portfolio;
+import com.remo.api.portfolios.models.Portfolio;
 
 /**
  * The REST response we send to the client when he places a trade

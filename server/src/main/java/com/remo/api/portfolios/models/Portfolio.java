@@ -1,4 +1,4 @@
-package com.remo.api.portfolios;
+package com.remo.api.portfolios.models;
 
 import com.remo.validation.ValidCurrency;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -7,7 +7,6 @@ import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity

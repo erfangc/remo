@@ -1,8 +1,8 @@
 package com.remo.api.security;
 
+import com.remo.api.security.models.Security;
+import com.remo.api.security.models.SecurityKey;
 import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 /**
  * Spring JPA repository for getting security data

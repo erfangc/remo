@@ -1,4 +1,4 @@
-package com.remo.api.security;
+package com.remo.api.security.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

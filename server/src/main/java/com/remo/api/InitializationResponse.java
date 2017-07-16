@@ -1,7 +1,7 @@
 package com.remo.api;
 
-import com.remo.api.portfolios.Portfolio;
-import com.remo.api.trades.Trade;
+import com.remo.api.portfolios.models.Portfolio;
+import com.remo.api.trades.models.Trade;
 import com.remo.registration.User;
 
 import java.util.Collections;

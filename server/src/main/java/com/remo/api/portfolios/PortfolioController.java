@@ -1,22 +1,18 @@
 package com.remo.api.portfolios;
 
-import com.remo.api.UserInputValidationException;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import com.remo.api.portfolios.models.Portfolio;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
+import static com.remo.api.AppControllerAdvice.validateBindingResult;
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toMap;
 
 /**
  * This controls the creation of portfolios on the platform
@@ -42,7 +38,7 @@ public class PortfolioController {
     public ResponseEntity<Portfolio> put(Principal principal,
                                          @Valid @RequestBody Portfolio portfolio,
                                          BindingResult bindingResult) {
-        validatePortfolio(bindingResult);
+        validateBindingResult(bindingResult);
         /*
         IMPORTANT - we override the username via principal to ensure we are saving the portfolio
         under the authenticated principal only
@@ -64,7 +60,7 @@ public class PortfolioController {
     public ResponseEntity<Portfolio> update(Principal principal,
                                             @Valid @RequestBody Portfolio portfolio,
                                             BindingResult bindingResult) {
-        validatePortfolio(bindingResult);
+        validateBindingResult(bindingResult);
         Portfolio found = portfolioRepository.findOne(portfolio.getPortfolioID());
         final String username = principal.getName();
         if (found.getUsername().equals(username)) {
@@ -86,22 +82,6 @@ public class PortfolioController {
             return ResponseEntity.ok("deleted");
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-    }
-
-    private void validatePortfolio(BindingResult bindingResult) {
-        final List<ObjectError> allErrors = bindingResult.getAllErrors();
-        if (!allErrors.isEmpty()) {
-            Map<Object, String> validationErrors = allErrors
-                    .stream()
-                    .filter(e -> e instanceof FieldError)
-                    .collect(
-                            toMap(
-                                    e -> ((FieldError) e).getField(),
-                                    DefaultMessageSourceResolvable::getDefaultMessage
-                            )
-                    );
-            throw new UserInputValidationException().setFieldErrors(validationErrors);
         }
     }
 

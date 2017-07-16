@@ -1,5 +1,7 @@
 package com.remo.api.security;
 
+import com.remo.api.security.models.Security;
+import com.remo.api.security.models.SecurityKey;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
