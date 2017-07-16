@@ -55,13 +55,7 @@ const actions = {
     axios
       .put('/registration', {
           ...fromPairs(Object.keys(fields).map(k => [k, fields[k].value])),
-          ...{
-            authorities: [],
-            isAccountNonExpired: true,
-            isAccountNonLocked: true,
-            isCredentialsNonExpired: true,
-            isEnabled: true
-          }
+          grantedAuthorities: []
         }
       )
       .then(

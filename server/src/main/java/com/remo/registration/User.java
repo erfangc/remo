@@ -1,5 +1,6 @@
 package com.remo.registration;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -8,10 +9,14 @@ import java.util.List;
 
 public class User implements UserDetails {
 
+    @NotEmpty
     private String firstName;
+    @NotEmpty
     private String username;
+    @NotEmpty
     private String lastName;
     private String occupation;
+    @NotEmpty
     private String email;
     private String password;
     private List<GrantedAuthority> grantedAuthorities;

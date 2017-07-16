@@ -3,7 +3,6 @@ package com.remo.registration;
 import com.remo.api.UserInputValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,7 +40,8 @@ public class UserRegistrationController {
             detailsManager.createUser(request);
         } catch (DuplicateKeyException e) {
             logger.error("Duplicate user registration attempted for username {}", request.getUsername());
-            throw new UserInputValidationException().setFieldErrors(singletonMap("username", "duplicate username found"));
+            throw new UserInputValidationException()
+                    .setFieldErrors(singletonMap("username", "duplicate username found"));
         }
         return ResponseEntity.ok(request.getUsername() + " created");
     }
