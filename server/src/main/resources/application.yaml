@@ -1,6 +1,8 @@
 spring:
   mvc:
     static-path-pattern: /**
+  datasource:
+    continue-on-error: true
 logging:
   level:
     org.springframework.web: DEBUG

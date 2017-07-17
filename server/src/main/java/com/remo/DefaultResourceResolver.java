@@ -16,7 +16,7 @@ import java.util.List;
  * <p>
  * Created by erfangchen on 7/17/17.
  */
-class DefaultResourceResolver implements ResourceResolver {
+public class DefaultResourceResolver implements ResourceResolver {
     @Override
     public Resource resolveResource(HttpServletRequest request, String requestPath, List<? extends Resource> locations, ResourceResolverChain chain) {
         return new ClassPathResource("static/index.html");

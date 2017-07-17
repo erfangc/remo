@@ -1,5 +1,3 @@
-DROP SCHEMA remo CASCADE;
-
 CREATE SCHEMA remo;
 
 -- create the user schema

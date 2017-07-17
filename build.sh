@@ -5,7 +5,7 @@
 #
 cd ui;
 rm -rf dist/
-yarn build
+yarn && yarn build
 cd ..
 
 #

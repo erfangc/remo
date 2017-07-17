@@ -3,7 +3,6 @@ package com.remo.registration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,14 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -38,23 +34,6 @@ public class UserDetailService implements UserDetailsService {
     @Autowired
     public UserDetailService(JdbcTemplate jdbcTemplate) throws IOException {
         this.jdbcTemplate = jdbcTemplate;
-        /*
-         create the database tables necessary to hold user information
-         used upon first time setup of the App
-         */
-        if (System.getProperties().containsKey("initializeUserDatabase")
-                && System.getProperties().containsKey("dropExistingUserTables")) {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(new ClassPathResource("schema-postgre.sql").getInputStream())
-            );
-            String script = reader.lines().collect(joining("\n"));
-            /*
-            create the user database schema via JDBC template
-             */
-            logger.info("Creating user database schema");
-            jdbcTemplate.execute(script);
-            reader.close();
-        }
     }
 
     @Override
