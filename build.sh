@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# build the front-end application
+# build the front-end application using yarn
 #
 cd ui;
 rm -rf dist/

@@ -2,7 +2,7 @@ package com.remo;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.web.servlet.resource.ResourceResolver;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.resource.ResourceResolverChain;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,14 +16,20 @@ import java.util.List;
  * <p>
  * Created by erfangchen on 7/17/17.
  */
-public class DefaultResourceResolver implements ResourceResolver {
+public class PathResourceResolverWithFallback extends PathResourceResolver {
     @Override
     public Resource resolveResource(HttpServletRequest request, String requestPath, List<? extends Resource> locations, ResourceResolverChain chain) {
-        return new ClassPathResource("static/index.html");
+        Resource result = super.resolveResource(request, requestPath, locations, chain);
+        if (result == null) {
+            return new ClassPathResource("static/index.html");
+        } else {
+            return result;
+        }
+
     }
 
     @Override
     public String resolveUrlPath(String resourcePath, List<? extends Resource> locations, ResourceResolverChain chain) {
-        return resourcePath;
+        return super.resolveUrlPath(resourcePath, locations, chain);
     }
 }
