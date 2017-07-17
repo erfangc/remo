@@ -1,25 +1,42 @@
 package com.remo.registration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Represents a user object in the App. Include all accounts detail.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements UserDetails {
 
     @NotEmpty
+    @Size(max = 255)
     private String firstName;
     @NotEmpty
     private String username;
     @NotEmpty
+    @Size(max = 255)
     private String lastName;
     private String occupation;
     @NotEmpty
+    @Size(max = 255)
     private String email;
     private String password;
-    private List<GrantedAuthority> grantedAuthorities;
+    @JsonIgnore
+    private List<String> grantedAuthorities;
+    private boolean accountNonExpired = true;
+    private boolean accountNonLocked = true;
+    private boolean credentialsNonExpired = true;
+    private boolean enabled = true;
 
     @Override
     public String getUsername() {
@@ -28,32 +45,57 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return accountNonExpired;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return credentialsNonExpired;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities;
+        return grantedAuthorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     @Override
     public String getPassword() {
         return password;
+    }
+
+    public List<String> getGrantedAuthorities() {
+        return grantedAuthorities;
+    }
+
+    public User setAccountNonExpired(boolean accountNonExpired) {
+        this.accountNonExpired = accountNonExpired;
+        return this;
+    }
+
+    public User setAccountNonLocked(boolean accountNonLocked) {
+        this.accountNonLocked = accountNonLocked;
+        return this;
+    }
+
+    public User setCredentialsNonExpired(boolean credentialsNonExpired) {
+        this.credentialsNonExpired = credentialsNonExpired;
+        return this;
+    }
+
+    public User setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        return this;
     }
 
     public String getFirstName() {
@@ -102,7 +144,7 @@ public class User implements UserDetails {
         return this;
     }
 
-    public User setGrantedAuthorities(List<GrantedAuthority> grantedAuthorities) {
+    public User setGrantedAuthorities(List<String> grantedAuthorities) {
         this.grantedAuthorities = grantedAuthorities;
         return this;
     }

@@ -50,4 +50,5 @@ public class AuthenticationSuccessHandler
     public void setRequestCache(RequestCache requestCache) {
         this.requestCache = requestCache;
     }
+
 }

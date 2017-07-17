@@ -46,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 .and()
                 .authorizeRequests()
+                .antMatchers("/index.html").permitAll()
                 .antMatchers("/api/security/**")
                 .hasAuthority("ADMIN")
                 .antMatchers("/api/portfolios/**", "/api/trades/**", "/api/user/**", "/api/init")

@@ -18,4 +18,5 @@ public class CurrencyValidator implements ConstraintValidator<ValidCurrency, Str
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return acceptables.contains(value);
     }
+
 }

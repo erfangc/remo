@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -20,7 +21,8 @@ import static java.util.Collections.singletonMap;
  * {@link UserRegistrationController}
  * Created by erfangchen on 7/5/17.
  */
-@RestController("registration")
+@RestController
+@RequestMapping("registration")
 public class UserRegistrationController {
 
     private UserDetailService detailsManager;

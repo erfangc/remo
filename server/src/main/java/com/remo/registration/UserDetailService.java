@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -91,7 +90,7 @@ public class UserDetailService implements UserDetailsService {
                 .setGrantedAuthorities(
                         authorities
                                 .stream()
-                                .map(row -> new SimpleGrantedAuthority((String) row.get("authority")))
+                                .map(row -> (String) row.get("authority"))
                                 .collect(toList())
                 );
     }

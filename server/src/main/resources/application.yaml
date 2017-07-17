@@ -1,6 +1,6 @@
 spring:
-  datasource:
-    username: postgres
-    password: foobar
-    url: jdbc:postgresql://localhost:5432/postgres
-    driver-class-name: org.postgresql.Driver
+  mvc:
+    static-path-pattern: /**
+logging:
+  level:
+    org.springframework.web: DEBUG
