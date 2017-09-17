@@ -9,6 +9,9 @@ Parameters:
     Type: String
     Description: The storage size of your database
     Default: 5
+  DBSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Subnet(s) across at least 2 AZs to host DB instance in
   DBClass:
     Type: String
     Description: The instance type running the database
@@ -42,19 +45,6 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: The Application Server and ASG security group to launch into
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
-          FromPort: '22'
-          ToPort: '22'
-        - IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
-          FromPort: '80'
-          ToPort: '80'
-        - IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
-          FromPort: '443'
-          ToPort: '443'
   PostgresIngress:
     Type: 'AWS::EC2::SecurityGroupIngress'
     Properties:
@@ -150,9 +140,7 @@ Resources:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
       DBSubnetGroupDescription: "the DB Subnet Group"
-      SubnetIds:
-        - "subnet-24032f7e"
-        - "subnet-1323fd38"
+      SubnetIds: !Ref DBSubnets
   RDS:
     Type: AWS::RDS::DBInstance
     Properties:
