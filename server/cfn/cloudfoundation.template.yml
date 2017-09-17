@@ -53,14 +53,6 @@ Resources:
       FromPort: '5432'
       ToPort: '5432'
       SourceSecurityGroupName: !Ref SGBase
-  ELBIngress:
-    Type: 'AWS::EC2::SecurityGroupIngress'
-    Properties:
-      GroupName: !Ref SGBase
-      IpProtocol: tcp
-      FromPort: '5000'
-      ToPort: '5000'
-      SourceSecurityGroupName: !Ref SGBase
   remo:
     Type: AWS::ElasticBeanstalk::Application
     Properties:
