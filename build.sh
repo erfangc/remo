@@ -13,6 +13,7 @@ cd ..
 # asset directory
 #
 rm -rf server/src/main/resources/static/*
+mkdir -p server/src/main/resources/static/
 cp -r ui/dist/* server/src/main/resources/static/
 
 #
