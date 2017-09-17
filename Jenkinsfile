@@ -6,11 +6,7 @@ node {
     // aws accountID
     codeBucket = "erfangc.com-codebase"
     stage('Build') {
-        parallel(
-                "Build": {
-                    sh './build.sh'
-                }
-        )
+        sh './build.sh'
     }
     stage('Upload to S3') {
         uberJar = "${pom.artifactId}-${pom.version}.jar"
@@ -38,14 +34,14 @@ aws elasticbeanstalk create-application-version \
     --source-bundle S3Bucket='${codeBucket}',S3Key='${uberJar}'
 """
     }
-//    stage('Deploy') {
-//        echo "Deploying to DEV ..."
-//        sh """
-//aws elasticbeanstalk update-environment \
-//    --application-name ${pom.artifactId} \
-//    --version-label ${pom.version} \
-//    --environment-name ${pom.artifactId}-DEV \
-//    --region us-east-1
-//"""
-//    }
+    stage('Deploy') {
+        echo "Deploying to DEV ..."
+        sh """
+aws elasticbeanstalk update-environment \
+    --application-name ${pom.artifactId} \
+    --version-label ${pom.version} \
+    --environment-name ${pom.artifactId}-DEV \
+    --region us-east-1
+"""
+    }
 }
