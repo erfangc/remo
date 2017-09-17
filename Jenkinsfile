@@ -4,7 +4,7 @@ node {
 
     def pom = readMavenPom file: 'server/pom.xml'
     // aws accountID
-    codeBucket = "arwm-calc-codebase-299541157397"
+    codeBucket = "erfangc.com-codebase"
     stage('Build') {
         parallel(
                 "Build": {
@@ -14,7 +14,7 @@ node {
     }
     stage('Upload to S3') {
         uberJar = "${pom.artifactId}-${pom.version}.jar"
-        s3Upload(file: "target/${uberJar}", bucket: codeBucket, path: uberJar)
+        s3Upload(file: "server/target/${uberJar}", bucket: codeBucket, path: uberJar)
 
         /*
         update the uberJar as a new version in ElasticBeanstalk

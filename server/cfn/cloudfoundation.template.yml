@@ -1,0 +1,169 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  DBPassword:
+    Type: String
+    Description: The password for your RDS instance
+    NoEcho: true
+    MinLength: 8
+  DBAllocatedStorage:
+    Type: String
+    Description: The storage size of your database
+    Default: 5
+  DBClass:
+    Type: String
+    Description: The instance type running the database
+    Default: db.t2.medium
+    AllowedValues:
+      - db.m2.xlarge
+      - db.m2.2xlarge
+      - db.m2.4xlarge
+      - db.m3.medium
+      - db.m3.large
+      - db.m3.xlarge
+      - db.m3.2xlarge
+      - db.m4.large
+      - db.m4.xlarge
+      - db.m4.2xlarge
+      - db.m4.4xlarge
+      - db.m4.10xlarge
+      - db.r3.large
+      - db.r3.xlarge
+      - db.r3.2xlarge
+      - db.r3.4xlarge
+      - db.r3.8xlarge
+      - db.t2.medium
+      - db.t2.large
+Resources:
+#
+#  security group rule to allow the EC2 instances to communicate with ELB
+#  and any RDS provisioned
+#
+  SGBase:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: The Application Server and ASG security group to launch into
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: '22'
+          ToPort: '22'
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: '80'
+          ToPort: '80'
+        - IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          FromPort: '443'
+          ToPort: '443'
+  PostgresIngress:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupName: !Ref SGBase
+      IpProtocol: tcp
+      FromPort: '5432'
+      ToPort: '5432'
+      SourceSecurityGroupName: !Ref SGBase
+  ELBIngress:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupName: !Ref SGBase
+      IpProtocol: tcp
+      FromPort: '5000'
+      ToPort: '5000'
+      SourceSecurityGroupName: !Ref SGBase
+  remo:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      Description: AWS Elastic Beanstalk Sample Application
+      ApplicationName: remo
+  ApplicationVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref remo
+      Description: AWS ElasticBeanstalk Sample Application Version
+      SourceBundle:
+        S3Bucket: erfangc.com-codebase
+        S3Key: remo-0.0.1-SNAPSHOT.jar
+  RemoConfigurationTemplate:
+    Type: AWS::ElasticBeanstalk::ConfigurationTemplate
+    Properties:
+      ApplicationName: !Ref remo
+      Description: AWS ElasticBeanstalk Sample Configuration Template
+      OptionSettings:
+      - Namespace: aws:autoscaling:asg
+        OptionName: MinSize
+        Value: '1'
+      - Namespace: aws:autoscaling:asg
+        OptionName: MaxSize
+        Value: '1'
+      - Namespace: aws:autoscaling:asg
+        OptionName: Custom Availability Zones
+        Value: us-east-1a
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: EnvironmentType
+        Value: LoadBalanced
+      - Namespace: aws:elasticbeanstalk:environment
+        OptionName: ServiceRole
+        Value: aws-elasticbeanstalk-service-role
+      SolutionStackName: 64bit Amazon Linux 2017.03 v2.5.4 running Java 8
+  DEVEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref remo
+      Description: AWS ElasticBeanstalk Sample Environment
+      CNAMEPrefix: !Sub ${remo}-DEV
+      EnvironmentName: !Sub ${remo}-DEV
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: arn:aws:iam::299541157397:instance-profile/aws-elasticbeanstalk-ec2-role
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: EC2KeyName
+          Value: ec2-key
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t2.medium
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: SecurityGroups
+          Value: !Ref SGBase
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RDS_HOSTNAME
+          Value: !GetAtt RDS.Endpoint.Address
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RDS_PORT
+          Value: !GetAtt RDS.Endpoint.Port
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RDS_DB_NAME
+          Value: postgres
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RDS_USERNAME
+          Value: postgres
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: RDS_PASSWORD
+          Value: !Ref DBPassword
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: SERVER_PORT
+          Value: 5000
+      TemplateName: !Ref RemoConfigurationTemplate
+      VersionLabel: !Ref ApplicationVersion
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: "the DB Subnet Group"
+      SubnetIds:
+        - "subnet-24032f7e"
+        - "subnet-1323fd38"
+  RDS:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: postgres
+      Engine: postgres
+      EngineVersion: 9.6.2
+      MultiAZ: false
+      VPCSecurityGroups:
+        - !GetAtt SGBase.GroupId
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MasterUsername: postgres
+      DBInstanceClass: !Ref DBClass
+      AllocatedStorage: !Ref DBAllocatedStorage
+      MasterUserPassword: !Ref DBPassword
